@@ -29,16 +29,24 @@ ConvexHull::ConvexHull() {
             std::cout << "\033[0;36m- Points Generation Was \033[0;31mUnsuccessful\033[0m" << std::endl;
         }
     } else if (mode == 2) {
+        std::cout << "\033[0;36mGenerating Points from Source Picture ...\033[0m" << std::endl;
         if (generateData()) {
-
+            std::cout << "\033[0;36m- \033[0;97m" << amount << "\033[0;36m Points Have been Generated\033[0;91m Successfully\033[0m" << std::endl;
         } else {
-
+            std::cout << "\033[0;36m- Points Generation Was \033[0;31mUnsuccessful\033[0m" << std::endl;
         }
-    } else if (mode == 3) {
 
+    } else if (mode == 3) {
+        std::cout << "\033[0;36mGenerating Points from Video Frames\033[0m" << std::endl;
+        if (generateData()) {
+            std::cout << "\033[0;36m- \033[0;97m" << amount << "\033[0;36m Points Have been Generated\033[0;91m Successfully\033[0m" << std::endl;
+        } else {
+            std::cout << "\033[0;36m- Points Generation Was \033[0;31mUnsuccessful\033[0m" << std::endl;
+        }
     } else {
         std::cout << "\033[0;31mInvalid Mode !\033[0;36m Check Configs Header File\033[0m" << std::endl;
     }
+    findOrigin();
 }
 
 //-- Destructor 
@@ -77,15 +85,19 @@ bool ConvexHull::checkConfigs() noexcept(true) {
 //-- Method to Initialize Program
 bool ConvexHull::initialize() noexcept(true) {
     //-- Configuring Output Display Window According to Mode
+    bool status = false;
     if (mode == 1) {
         output = cv::Mat(windowWidth, windowLength, CV_8UC3, cv::Scalar(windowBlue, windowGreen, windowRed));
-        // output = cv::imread()
+        if (!output.empty()) {
+            status = true;
+        }
     } else if (mode == 2) {
         //-- Check If Picture is in Folder or Not
         DIR *image;
         image = opendir("Source/");
         struct dirent *action;
         if (image) {
+            //-- Opens any Image That is in Source Folder
             while ((action = readdir(image)) != NULL) {
                 std::string path = action->d_name;
                 if (path != "..") {
@@ -93,6 +105,8 @@ bool ConvexHull::initialize() noexcept(true) {
                         path = "Source/" + path;
                         std::cout << "\033[0;36m- Image with The Name \033[0;97m" << action->d_name << "\033[0;36m Has Been \033[0;91mFound\033[0m" << std::endl;
                         output = cv::imread(path, cv::IMREAD_GRAYSCALE);
+                        cv::resize(output, output,cv::Size(frameWidth, frameLength));
+                        status = true;
                     }
                 } else {
                     continue;
@@ -102,14 +116,25 @@ bool ConvexHull::initialize() noexcept(true) {
         } else {
             std::cout << "\033[0;36m'Source' Folder \033[0;31mNot Found\033[0m" << std::endl; 
         }
-        // std::cout << "\033[0;36mAffecting Filter on Souce Image ...\033[0m" << std::endl;
-        // filter();
     } else if (mode == 3) { 
-
+        for (int i = -2; i < 2; i++) {
+            cv::VideoCapture capture(i);
+            if (capture.isOpened()) {
+                std::cout << "\033[0;36m- Camera Source \033[0;91mFound\033[0m" << std::endl;
+                cameraNumber = i;
+                status = true;
+                break;
+            }
+        }
+        if (!status) {
+            std::cout << "\033[0;36m- Camera Source \033[0;31mNot Found\033[0m" << std::endl;
+        }
     } else {
         output = cv::Mat(windowWidth, windowLength, CV_8UC3, cv::Scalar(0, 0, 40));
         cv::line(output, cv::Point(0, 0), cv::Point(windowLength, windowWidth), cv::Scalar(0, 0, 190), 10, 8, 0);
         cv::line(output, cv::Point(0, windowWidth), cv::Point(windowLength, 0), cv::Scalar(0, 0, 190), 10, 8, 0);
+        cv::imshow("output", output);
+        cv::waitKey(0);
     }
     //-- Resizing Vectors of Data
     points.x.resize(0);
@@ -119,10 +144,10 @@ bool ConvexHull::initialize() noexcept(true) {
     convexed.y.resize(0);
     convexed.theta.resize(0);
     //-- Return Section
-    if (output.empty() || !points.x.empty() || !points.y.empty() || !points.theta.empty() || !convexed.x.empty() || !convexed.y.empty() || !convexed.theta.empty()) {
-        return false;
-    } else {
+    if (status) {
         return true;
+    } else {
+        return false;
     }
 }
 
@@ -169,10 +194,43 @@ bool ConvexHull::generateData() noexcept(true) {
             }
             cv::waitKey(1);
         }
-        cv::imshow("output", output);
-        cv::waitKey(0);
+        if (graphics) {
+            cv::imshow("output", output);
+            cv::waitKey(2000);
+        }
     } else if (mode == 2) {
-        
+        treshold();
+        if (graphics) {
+            cv::imshow("output", output);
+            cv::waitKey(2000);
+        }
+    } else if (mode == 3) {
+        cv::VideoCapture capture(cameraNumber);
+        while (true) {
+            amount = 0;
+            capture >> output;
+            cv::resize(output, output,cv::Size(frameWidth, frameLength));
+            switch (cv::waitKey(1)) {
+                case (int('q')):{
+                    std::cout << "\033[0;97mTerminated \033[0;31mSuccessfully\033[0m" << std::endl;
+                    exit(0);
+                    break;
+                }
+                case (int('p')): {
+                    std::cout << "\033[0;36m- Pause\033[0m" << std::endl; 
+                    if (cv::waitKey(0) == int('r')) {
+                        std::cout << "\033[0;36m- Resume\033[0m" << std::endl;
+                        continue;
+                    } 
+                    break;
+                }
+            }
+            treshold();
+            if (graphics) {
+                cv::imshow("output", output);
+                cv::waitKey(2000);
+            }
+        }
     }
     //-- Return Secton
     if (amount) {
@@ -182,58 +240,35 @@ bool ConvexHull::generateData() noexcept(true) {
     }
 }
 
-//-- Affect Filter to Make Picture Black and White (Working on It...)
-void ConvexHull::filter() noexcept(true) {
-    // cv::imshow("s", output);
-    // cv::waitKey(0);
-    // //-- Filter on Horizontal Axis
-    // double horizontal[3][3] = {
-    //     -3.5, 1, 0,
-    //     1, 0, 1,
-    //     0, 1, -3.5
-    // };
-    // //-- Filter on Vertical Axis
-    // double vertical[3][3] = {
-    //     0, 1, -3.5,
-    //     1, 0, 1,
-    //     -3.5, 1, 0
-    // };
-    // volatile double sum = 0;
-    // volatile double sumX = 0;
-    // volatile double sumY = 0;
-    // for (long long int i = 0; i < windowLength; i++) {
-    //     for (long long int j = 0; j < windowWidth; j++) {
-    //         sumX = 0;
-    //         sumY = 0;
-    //         for (int p = 0; p < 3; p++) {
-    //             for (int q = 0; q < 3; q++) {
-    //                 sumX += horizontal[p][q] * output.at<uchar>(p + i, q + j);
-    //                 sumY += vertical[p][q] * output.at<uchar>(p + i, q + j);
-    //             }
-    //         }
-    //         sum = sqrt(pow(sumX, 2) + pow(sumY, 2));
-    //         if (sum > 255) {
-    //             sum = 255;
-    //         }
-    //         output.at<uchar>(i, j) = sum;
-    //         if (i > 0 && j > 0) {
-    //             if (output.at<uchar>(i, j) > treshValue) {
-    //                 std::cout << "t" << std::endl;
-    //                 cv::imshow("output", output);
-    //                 cv::waitKey(0);
-    //                 output.at<uchar>(i, j) = 255;
-    //                 points.x.push_back(i);
-    //                 points.y.push_back(j);
-    //                 if (graphics) {
-    //                     cv::circle(output, cv::Point(points.x[amount], points.y[amount]), pointSize, cv::Scalar(pointBlue, pointGreen, pointRed), -1, cv::LINE_8, 0);
-    //                     cv::imshow("output", output);
-    //                     cv::waitKey(1);
-    //                 }
-    //                 if (points.x[amount] == i && points.y[amount] == j) {
-    //                     amount++;
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
+//-- Affect Filter to Make Picture or Frame Black and White
+void ConvexHull::treshold() noexcept(true) {
+    volatile int tmpX;
+    volatile int tmpY;
+    for (int i = 0; i < output.rows; i++) {
+        for (int j = 0; j < output.cols; j++) {
+            if (output.at<uchar>(i, j) < treshValue) {
+                output.at<uchar>(i, j) = 0;
+            } else {
+                output.at<uchar>(i, j) = 255;
+                tmpX = j;
+                tmpY = i;
+                points.x.push_back(tmpX);
+                points.y.push_back(tmpY);
+                amount++;
+                if (graphics) {
+                    if (j % 15 == 0) {
+                        cv::imshow("output", output);
+                        cv::waitKey(1);
+                    }
+                }
+            }
+        }
+    }
+}
+
+//-- Finds Origin Point
+void ConvexHull::findOrigin() noexcept(true) {
+    for (int i = 0; i < amount; i++) {
+        std::cout << points.x[i] << std::endl;
+    }
 }

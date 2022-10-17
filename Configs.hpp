@@ -26,7 +26,7 @@ extern int16_t mode;
 //- 2 Stands for Jarvis March's Algorithms
 extern int16_t algorithm;
 //-- Treshold Constant Value
-#define treshValue 245
+#define treshValue 250
 
 //-- Graphics
 #define DEFAULT_GRAPHICS true
@@ -62,9 +62,12 @@ extern long long int amount;
 #define min 3
 
 //-- Window Display
-//-- Window Size
-#define windowLength 1000
-#define windowWidth 1000
+//-- Window Size for Points
+#define windowLength 500
+#define windowWidth 500
+//-- Window Size for Frames
+#define frameLength 720
+#define frameWidth 1080
 //-- Window Color
 #define windowBlue 13
 #define windowGreen 6

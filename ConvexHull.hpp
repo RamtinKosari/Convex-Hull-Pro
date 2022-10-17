@@ -9,12 +9,14 @@ class ConvexHull {
         int16_t algorithm;
         bool graphics;
         long long int amount;
-        //-- Window Mat
+        //-- Window Matrix
         cv::Mat output;
+        //-- Camera Number
+        int16_t cameraNumber;
         //-- Structure for Storing Points Data
         struct Data {
-            std::vector <int> x;
-            std::vector <int> y;
+            std::vector <long long int> x;
+            std::vector <long long int> y;
             std::vector <double> theta;
         };
         Data points;
@@ -36,8 +38,10 @@ class ConvexHull {
         bool initialize() noexcept;
         //-- Generates Points According to Mode
         bool generateData() noexcept;
-        //-- Affect Filter to Make Picture Black and White
-        void filter() noexcept;
+        //-- Affect Filter to Make Picture or Frame Black and White
+        void treshold() noexcept;
+        //-- Finds Origin Point
+        void findOrigin() noexcept;
 };
 
 #endif // CONVEXHULL_HPP
