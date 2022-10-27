@@ -3,8 +3,9 @@
 //-- Constructor
 ConvexHull::ConvexHull() {
     mode = DEFAULT_MODE;
-    algorithm = DEFAULT_ALGORITHM;
     graphics = DEFAULT_GRAPHICS;
+    algorithm = DEFAULT_ALGORITHM;
+    sortAlgorithm = DEFAULT_SORT_ALGORITHM;
     //- Check If Config File is Included or Not
     std::cout << "\033[0;36mChecking Configs Header File ...\033[0m" << std::endl;
     if (checkConfigs()) {
@@ -46,7 +47,6 @@ ConvexHull::ConvexHull() {
     } else {
         std::cout << "\033[0;31mInvalid Mode !\033[0;36m Check Configs Header File\033[0m" << std::endl;
     }
-    findOrigin();
 }
 
 //-- Destructor 
@@ -58,6 +58,7 @@ ConvexHull::~ConvexHull() {
     convexed.x.clear();
     convexed.y.clear();
     convexed.theta.clear();
+    cv::waitKey(0);
     cv::destroyAllWindows();
 }
 
@@ -143,6 +144,8 @@ bool ConvexHull::initialize() noexcept(true) {
     convexed.x.resize(0);
     convexed.y.resize(0);
     convexed.theta.resize(0);
+    origin.x = 0;
+    origin.y = 0;
     //-- Return Section
     if (status) {
         return true;
@@ -186,6 +189,11 @@ bool ConvexHull::generateData() noexcept(true) {
         for (int counter = 0; counter < DEFAULT_AMOUNT; counter++) {
             points.x.push_back(distX(engine));
             points.y.push_back(distY(engine));
+            //-- Finds Origin Point During Generating Points
+            if (points.y[counter] > origin.y) {
+                origin.x = points.x[counter];
+                origin.y = points.y[counter];
+            }
             if (graphics) {
                 volatile int tmpX = points.x[counter];
                 volatile int tmpY = points.y[counter];
@@ -194,12 +202,18 @@ bool ConvexHull::generateData() noexcept(true) {
             }
             cv::waitKey(1);
         }
+        calculateTheta();
+        sortPoints();
+        for (int i = 0; i < amount; i++) {
+            std::cout << points.x[i] << " - " << points.y[i] << " - \033[0;93m" << points.theta[i] << "\033[0m" << std::endl;
+        }
         if (graphics) {
             cv::imshow("output", output);
             cv::waitKey(2000);
         }
     } else if (mode == 2) {
         treshold();
+        calculateTheta();
         if (graphics) {
             cv::imshow("output", output);
             cv::waitKey(2000);
@@ -209,6 +223,7 @@ bool ConvexHull::generateData() noexcept(true) {
         while (true) {
             amount = 0;
             capture >> output;
+            cv::cvtColor(output, output, cv::COLOR_BGR2GRAY);
             cv::resize(output, output,cv::Size(frameWidth, frameLength));
             switch (cv::waitKey(1)) {
                 case (int('q')):{
@@ -226,9 +241,10 @@ bool ConvexHull::generateData() noexcept(true) {
                 }
             }
             treshold();
+            calculateTheta();
             if (graphics) {
                 cv::imshow("output", output);
-                cv::waitKey(2000);
+                cv::waitKey(refreshRate);
             }
         }
     }
@@ -254,6 +270,11 @@ void ConvexHull::treshold() noexcept(true) {
                 tmpY = i;
                 points.x.push_back(tmpX);
                 points.y.push_back(tmpY);
+                //-- Finds Origin Point During Generating Points
+                if (points.y[amount] > origin.y) {
+                    origin.x = tmpX;
+                    origin.y = tmpY;
+                }
                 amount++;
                 if (graphics) {
                     if (j % 15 == 0) {
@@ -266,9 +287,81 @@ void ConvexHull::treshold() noexcept(true) {
     }
 }
 
-//-- Finds Origin Point
-void ConvexHull::findOrigin() noexcept(true) {
+//-- Calculate Angle Theta of Points
+void ConvexHull::calculateTheta() noexcept(true) {
     for (int i = 0; i < amount; i++) {
-        std::cout << points.x[i] << std::endl;
+        points.theta.push_back(atan2(origin.y - points.y[i], origin.x - points.x[i]));
     }
 }
+
+//-- Sort Points by Their Angle Theta from Origin Point
+void ConvexHull::sortPoints() noexcept(true) {
+    switch (sortAlgorithm) {
+        case 1: {
+            bubbleSort();
+            break;
+        }
+        case 2: {
+            quickSort();
+            break;
+        }
+        case 3: {
+            insertionSort();
+            break;
+        }
+    }
+}
+
+//-- Bubble Sort Algorithm
+void ConvexHull::bubbleSort() noexcept(true) {
+    volatile int tmpX, tmpY, tmpTheta;
+    cv::Mat tmp;
+    output.copyTo(tmp);
+    for (int i = 0; i < amount; i++) {
+        for (int j = 0; j < amount; j++) {
+            if (points.theta[j] > points.theta[j + 1]) {
+                tmpX = points.x[j + 1];
+                points.x[j + 1] = points.x[j];
+                points.x[j] = tmpX;
+                tmpY = points.y[j + 1];
+                points.y[j + 1] = points.y[j];
+                points.y[j] = tmpY;
+                tmpTheta = points.theta[j + 1];
+                points.theta[j + 1] = points.theta[j];
+                points.theta[j] = tmpTheta;
+            }
+        }
+    }
+}
+
+//-- Insertion Sort Algorithm
+void ConvexHull::insertionSort() noexcept(true) {
+    volatile int tmp;
+    for (int i = 1, j; i < points.theta.size(); i++) {
+        tmp = points.theta[i];
+        j = tmp - 1;
+        while (tmp < points.x[j] && j >= 0) {
+            points.theta[j + 1] = points.theta[j];
+            --j;
+        }
+        points.theta[j + 1] = tmp;
+    }
+    for (int i = 0; i < amount; i++) {
+        std::cout << points.x[i] << " - " << points.y[i] << std::endl;
+    }
+}
+
+void ConvexHull::quickSort() noexcept(true) {
+
+}
+
+//-- Creates Convex Hull
+void ConvexHull::calcConvexHull() noexcept(true) {
+
+}
+
+//-- Creates ConvexHull
+// long int ConvexHull::determinant(int xSelected, int ySelected, int xLast, int yLast, int xBeforeLast, int yBeforeLast) noexcept(true) {
+
+// }
+

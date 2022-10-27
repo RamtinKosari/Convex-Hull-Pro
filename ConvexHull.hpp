@@ -6,8 +6,9 @@ class ConvexHull {
     private:
         //-- Needed Configs
         int16_t mode;
-        int16_t algorithm;
         bool graphics;
+        int16_t algorithm;
+        int16_t sortAlgorithm;
         long long int amount;
         //-- Window Matrix
         cv::Mat output;
@@ -20,13 +21,20 @@ class ConvexHull {
             std::vector <double> theta;
         };
         Data points;
-        //-- Structure for Storing Convexed Hull Points
+        //-- Structure for Storing Convexed Hull Points Data
         struct ConvexedData {
             std::vector <int> x;
             std::vector <int> y;
             std::vector <double> theta;
         };
         ConvexedData convexed;
+        //-- Structure for Storing Origin Point's Data
+        struct originData {
+            int x;
+            int y;
+            int theta;
+        };
+        originData origin;
     public:
         //-- Constructor
         ConvexHull();
@@ -40,8 +48,18 @@ class ConvexHull {
         bool generateData() noexcept;
         //-- Affect Filter to Make Picture or Frame Black and White
         void treshold() noexcept;
-        //-- Finds Origin Point
-        void findOrigin() noexcept;
+        //-- Calculate Angle Theta of Points
+        void calculateTheta() noexcept;
+        //-- Sort Points by Their Angle Theta from Origin Point
+        void sortPoints() noexcept;
+        //-- Sort Algorithms
+        void bubbleSort() noexcept;
+        void quickSort() noexcept;
+        void insertionSort() noexcept;
+        //-- Creates ConvexHull
+        void calcConvexHull() noexcept;
+        //-- Calculates Determinant of Two Vectors
+        // long int determinant(int &, int &, int &, int& , int &, int &);
 };
 
 #endif // CONVEXHULL_HPP

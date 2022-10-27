@@ -14,7 +14,7 @@
 #include <cmath>
 
 //-- Mode
-#define DEFAULT_MODE 2
+#define DEFAULT_MODE 1
 //- 1 Stands for Source of Random Generated Dots
 //- 2 Stands for Image Source
 //- 3 Stands for Webcam Source
@@ -25,14 +25,23 @@ extern int16_t mode;
 //- 1 Stands for Graham Scan's Algorithms
 //- 2 Stands for Jarvis March's Algorithms
 extern int16_t algorithm;
+//-- Sort Algorithm
+#define DEFAULT_SORT_ALGORITHM 3
+//- 1 Stands for Bubble Sort
+//- 2 Stands for Quick Sort
+//- 3 Stands for Insertion Sort
+extern int16_t sortAlgorithm;
 //-- Treshold Constant Value
-#define treshValue 250
+#define treshValue 230
 
 //-- Graphics
 #define DEFAULT_GRAPHICS true
 //- true Will Show How Algorithm Works Step by Step with Aniamtion
 //- false Will Show Only Resault
 extern bool graphics;
+//-- Refresh Time Between Frames (for Video Capturing)
+//- in Miliseconds
+#define refreshRate 10
 //- Point Size
 #define pointSize 1
 //- Point Color
@@ -54,7 +63,7 @@ extern bool graphics;
 
 //-- Points
 //- Default Amount
-#define DEFAULT_AMOUNT 2000
+#define DEFAULT_AMOUNT 200
 extern long long int amount;
 //- Max Amount
 #define max 9000000
