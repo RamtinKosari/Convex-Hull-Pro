@@ -1,8 +1,5 @@
 #ifndef CONFIGS_HPP
 #define CONFIGS_HPP
-
-#include <opencv4/opencv2/highgui.hpp>
-#include <opencv4/opencv2/imgproc.hpp>
 #include <sys/types.h>
 #include <iostream>
 #include <dirent.h>
@@ -13,7 +10,46 @@
 #include <vector>
 #include <cmath>
 
-//-- Mode
+//-- Configure According to OS Type by Checking Macros
+//- 1 Stands for Windows
+//- 2 Stands for Linux (or Unix Based Like MacOS)
+//- 3 Stands for MacOS
+//- 4 Stands for None-Supported Operating Systems (Like FreeBSD or Android)
+extern int16_t osType;
+#if defined(_WIN32) || defined(_WIN64) || defined(__CYGWIN__)
+    #define DEFAULT_OS 1
+    #ifndef _WCTYPE_H
+        #include <wctype.h>
+    #endif
+    #include <windows.h>
+#elif defined(unix) || defined(__unix) || defined(__unix__)
+    #define DEFAULT_OS 2
+    #ifndef _X11_XLIB_H_
+        #include <X11/Xlib.h>
+    #endif
+#elif defined(__APPLE__) || defined(__MACH__)
+    #define DEFAULT_OS 3
+#else
+    #define DEFAULT_OS 4
+#endif
+
+#ifndef OPENCV_HIGHGUI_HPP
+    #include <opencv4/opencv2/highgui.hpp>
+#endif
+
+#ifndef OPENCV_IMGPROC_HPP
+    #include <opencv4/opencv2/imgproc.hpp>
+#endif
+
+//-- System Configs (Variable)
+//- Screen Resolution
+#define DEFAULT_HEIGHT 10
+#define DEFAULT_WIDTH 10
+struct display {
+    int64_t width;
+    int64_t height;
+};
+//-- Modes
 #define DEFAULT_MODE 1
 //- 1 Stands for Source of Random Generated Dots
 //- 2 Stands for Image Source
@@ -26,7 +62,7 @@ extern int16_t mode;
 //- 2 Stands for Jarvis March's Algorithms
 extern int16_t algorithm;
 //-- Sort Algorithm
-#define DEFAULT_SORT_ALGORITHM 3
+#define DEFAULT_SORT_ALGORITHM 1
 //- 1 Stands for Bubble Sort
 //- 2 Stands for Quick Sort
 //- 3 Stands for Insertion Sort
@@ -42,6 +78,8 @@ extern bool graphics;
 //-- Refresh Time Between Frames (for Video Capturing)
 //- in Miliseconds
 #define refreshRate 10
+//-- Separate Value
+extern int64_t separate;
 //- Point Size
 #define pointSize 1
 //- Point Color
@@ -60,10 +98,23 @@ extern bool graphics;
 #define lineBlue 137
 #define lineGreen 137
 #define lineRed 137
+//- Font Size
+#define fontSize 1
+//- Font Color
+#define fontBlue 255
+#define fontGreen 255;
+#define fontRed 255;
+
+//-- Log
+#define DEFAULT_TERMINAL 1
+//- 1 Stands for Showing Terminal Log
+//- 2 Stands for Hiding Terminal Log
+extern int16_t terminal;
+
 
 //-- Points
 //- Default Amount
-#define DEFAULT_AMOUNT 200
+#define DEFAULT_AMOUNT 2000
 extern long long int amount;
 //- Max Amount
 #define max 9000000
@@ -72,8 +123,8 @@ extern long long int amount;
 
 //-- Window Display
 //-- Window Size for Points
-#define windowLength 500
-#define windowWidth 500
+#define windowLength 1001
+#define windowWidth 1001
 //-- Window Size for Frames
 #define frameLength 720
 #define frameWidth 1080

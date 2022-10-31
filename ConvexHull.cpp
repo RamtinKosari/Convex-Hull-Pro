@@ -3,6 +3,8 @@
 //-- Constructor
 ConvexHull::ConvexHull() {
     mode = DEFAULT_MODE;
+    osType = DEFAULT_OS;
+    terminal = DEFAULT_TERMINAL;
     graphics = DEFAULT_GRAPHICS;
     algorithm = DEFAULT_ALGORITHM;
     sortAlgorithm = DEFAULT_SORT_ALGORITHM;
@@ -87,6 +89,51 @@ bool ConvexHull::checkConfigs() noexcept(true) {
 bool ConvexHull::initialize() noexcept(true) {
     //-- Configuring Output Display Window According to Mode
     bool status = false;
+    output = cv::Mat(windowWidth, windowLength, CV_8UC3, cv::Scalar(0, 0, 40));
+    //-- Get Screen Size to Put Output Display Window in The Middle of Screen
+    display screen;
+    if (osType == 1) {
+        #if defined(_WIN32) || defined(_WIN64) || defined(__CYGWIN__)
+            osName = "MS-DOSWindows";
+            RECT desktop;
+            const HWND hDesktop = GetDesktopWindow();
+            GetWindowRect(hDesktop, &desktop);
+            screen.height = desktop.right;
+            screen.width = desktop.bottom;
+        #endif
+        //-- Will Work on Later
+    } else if (osType == 2 || osType == 3) {
+        #if defined(unix) || defined(__unix) || defined(__unix__) || defined(__APPLE__) || defined(__MACH__)
+            osName = "Unix Based (Linux/MacOS Has Same Configuration Settings)";
+            Display* disp = XOpenDisplay(NULL);
+            Screen* scrn = DefaultScreenOfDisplay(disp);
+            XCloseDisplay(disp);
+            screen.height = scrn->height;
+            screen.width = scrn->width;
+        #endif
+    } else if (osType == 4) {
+        osName = "Not Supported by This Program";
+        std::cout << "\033[0;31mYour Device is Unsupported. Display Window Will be Moved into Default Position\033[0m" << std::endl;
+        screen.height = DEFAULT_HEIGHT;
+        screen.width = DEFAULT_WIDTH;
+    } else {
+        osName = "NULL";
+        screen.height = DEFAULT_HEIGHT;
+        screen.width = DEFAULT_WIDTH;
+    }
+    //-- Terminal Logger
+    if (terminal) {
+        //- OS Name    
+        std::cout << "\033[0;36m- Operating System \033[0m" << osName << std::endl;
+        //- Screen Resolution
+        std::cout << "\033[0;36m- Screen Resolution \033[0m" << screen.height << " * " << screen.width << std::endl; 
+    }
+    //-- Move Ouput Window
+    volatile int tmpHeight = screen.height / 2 - windowWidth / 2;
+    volatile int tmpWidth = screen.width / 2 - windowLength / 2;
+    cv::imshow("output", output);
+    cv::moveWindow("output", tmpWidth, tmpHeight);    
+    // cv::moveWindow("output", 460, 1036);
     if (mode == 1) {
         output = cv::Mat(windowWidth, windowLength, CV_8UC3, cv::Scalar(windowBlue, windowGreen, windowRed));
         if (!output.empty()) {
@@ -131,7 +178,6 @@ bool ConvexHull::initialize() noexcept(true) {
             std::cout << "\033[0;36m- Camera Source \033[0;31mNot Found\033[0m" << std::endl;
         }
     } else {
-        output = cv::Mat(windowWidth, windowLength, CV_8UC3, cv::Scalar(0, 0, 40));
         cv::line(output, cv::Point(0, 0), cv::Point(windowLength, windowWidth), cv::Scalar(0, 0, 190), 10, 8, 0);
         cv::line(output, cv::Point(0, windowWidth), cv::Point(windowLength, 0), cv::Scalar(0, 0, 190), 10, 8, 0);
         cv::imshow("output", output);
@@ -146,6 +192,35 @@ bool ConvexHull::initialize() noexcept(true) {
     convexed.theta.resize(0);
     origin.x = 0;
     origin.y = 0;
+    //-- Configure Separate Value if Graphics is Enabled and Graphics Status Display
+    if (graphics) {
+        if (amount < 500) {
+            separate = 1;
+        } else if (amount >= 500 && amount < 1500) {
+            separate = 3;
+        } else if (amount >= 1250 && amount < 2000) {
+            separate = 9;
+        } else if (amount >= 2000 && amount < 3500) {
+            separate = 27;
+        } else {
+            separate = 50;
+        }
+        cv::Mat tmp;
+        for (int i = 0; i < 255 * 3; i++) {
+            output.copyTo(tmp);
+            cv::putText(tmp, "by Ramtin Kosari", cv::Point(windowLength * 7.4 / 20, windowWidth * 5.4 / 10), cv::FONT_HERSHEY_COMPLEX, int(fontSize) / 1.2, cv::Scalar(i / 4, i / 4, i / 4));
+            if (i < 255) {
+                cv::putText(tmp, "Graphics Has been Enabled", cv::Point(windowLength * 5 / 20, windowWidth / 2), cv::FONT_HERSHEY_COMPLEX, fontSize, cv::Scalar(i, i, 0));
+            } else if (i >= 255 * 2) {
+                cv::putText(tmp, "Graphics Has been Enabled", cv::Point(windowLength * 5 / 20, windowWidth / 2), cv::FONT_HERSHEY_COMPLEX, fontSize, cv::Scalar(255 - (i - 255 * 2), 255 - (i - 255 * 2), 0));
+                cv::rectangle(tmp, cv::Point(windowLength / 2 - (i - 255 * 2), windowWidth * 5.2 / 10), cv::Point(windowLength / 2 + (i - 255 * 2), windowWidth * 5.6 / 10), cv::Scalar(windowBlue, windowGreen, windowRed), -1, 8, 0);
+            } else {
+                cv::putText(tmp, "Graphics Has been Enabled", cv::Point(windowLength * 5 / 20, windowWidth / 2), cv::FONT_HERSHEY_COMPLEX, fontSize, cv::Scalar(255, 255, 0));
+            }
+            cv::imshow("output", tmp);
+            cv::waitKey(5);
+        }
+    }
     //-- Return Section
     if (status) {
         return true;
@@ -176,16 +251,19 @@ bool ConvexHull::generateData() noexcept(true) {
             verticalPadding vertical;
         };
         paddingCNF padding;
-        padding.horizontal.left = windowLength * 1 / 10;
-        padding.horizontal.right = windowLength * 9 / 10;
-        padding.vertical.upper = windowWidth * 9 / 10;
-        padding.vertical.lower = windowWidth * 1 / 10;
+        padding.horizontal.left = windowLength * 2 / 10;
+        padding.horizontal.right = windowLength * 8 / 10;
+        padding.vertical.upper = windowWidth * 8 / 10;
+        padding.vertical.lower = windowWidth * 2 / 10;
+        volatile int paddingValue = ((padding.horizontal.left + padding.horizontal.right) / 2 + (padding.vertical.lower + padding.vertical.upper) / 2) / 14;
         //-- Creates Engine That Generates Random Numbers
         std::random_device RANDOM;
         std::default_random_engine engine(RANDOM());
         std::uniform_int_distribution <int> distX(padding.horizontal.left, padding.horizontal.right);
         std::uniform_int_distribution <int> distY(padding.vertical.lower, padding.vertical.upper);
         //-- Generating Points
+        volatile int tmpX,tmpY;
+        volatile int sign = 1;
         for (int counter = 0; counter < DEFAULT_AMOUNT; counter++) {
             points.x.push_back(distX(engine));
             points.y.push_back(distY(engine));
@@ -193,23 +271,30 @@ bool ConvexHull::generateData() noexcept(true) {
             if (points.y[counter] > origin.y) {
                 origin.x = points.x[counter];
                 origin.y = points.y[counter];
+                if (graphics) {
+                    cv::circle(output, cv::Point(points.x[counter], points.y[counter]), pointSize, cv::Scalar(0, 255, 255), -1, 8, 0);
+                    cv::imshow("output", output);
+                    cv::waitKey(1);
+                }
             }
             if (graphics) {
-                volatile int tmpX = points.x[counter];
-                volatile int tmpY = points.y[counter];
+                tmpX = points.x[counter];
+                tmpY = points.y[counter];
                 cv::circle(output, cv::Point(tmpX, tmpY), pointSize, cv::Scalar(pointBlue, pointGreen, pointRed), -1, cv::LINE_8, 0);
                 cv::imshow("output", output);
             }
             cv::waitKey(1);
         }
         calculateTheta();
-        sortPoints();
-        for (int i = 0; i < amount; i++) {
-            std::cout << points.x[i] << " - " << points.y[i] << " - \033[0;93m" << points.theta[i] << "\033[0m" << std::endl;
+        sortPoints(); // -- Has Bug : 0 - 0 - 0
+        if (terminal) {
+            for (int i = 0; i < amount; i++) {
+                std::cout << points.x[i] << " - " << points.y[i] << " - \033[0;93m" << points.theta[i] << "\033[0m" << std::endl;
+            }
         }
         if (graphics) {
             cv::imshow("output", output);
-            cv::waitKey(2000);
+            cv::waitKey(0);
         }
     } else if (mode == 2) {
         treshold();
@@ -290,7 +375,7 @@ void ConvexHull::treshold() noexcept(true) {
 //-- Calculate Angle Theta of Points
 void ConvexHull::calculateTheta() noexcept(true) {
     for (int i = 0; i < amount; i++) {
-        points.theta.push_back(atan2(origin.y - points.y[i], origin.x - points.x[i]));
+        points.theta.push_back(atan2(origin.y - points.y[i], origin.x - points.x[i]) * 180 / M_PI);
     }
 }
 
@@ -309,7 +394,18 @@ void ConvexHull::sortPoints() noexcept(true) {
             insertionSort();
             break;
         }
+        default:
+            std::cout << "\033[0;31mWrong Sort Algorithm\033[0;36m" << std::endl;
+            exit(0);
     }
+    //-- Debug
+    //- Start
+    for (int i = 0; i < amount; i++) {
+        cv::circle(output, cv::Point(points.x[i], points.y[i]), pointSize, cv::Scalar(0, 255, 0), -1, 8, 0);
+        cv::imshow("output", output);
+        cv::waitKey(10);
+    }
+    //- End
 }
 
 //-- Bubble Sort Algorithm
@@ -345,9 +441,6 @@ void ConvexHull::insertionSort() noexcept(true) {
             --j;
         }
         points.theta[j + 1] = tmp;
-    }
-    for (int i = 0; i < amount; i++) {
-        std::cout << points.x[i] << " - " << points.y[i] << std::endl;
     }
 }
 

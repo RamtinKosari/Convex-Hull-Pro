@@ -7,9 +7,13 @@ class ConvexHull {
         //-- Needed Configs
         int16_t mode;
         bool graphics;
+        int16_t osType;
+        std::string osName;
+        int16_t terminal;
+        int16_t separate;
         int16_t algorithm;
-        int16_t sortAlgorithm;
         long long int amount;
+        int16_t sortAlgorithm;
         //-- Window Matrix
         cv::Mat output;
         //-- Camera Number
