@@ -8,12 +8,14 @@ class ConvexHull {
         int16_t mode;
         bool graphics;
         int16_t osType;
-        std::string osName;
         int16_t terminal;
         int16_t separate;
         int16_t algorithm;
+        std::string osName;
         long long int amount;
         int16_t sortAlgorithm;
+        //-- Temp Matrix
+        cv::Mat tmp;
         //-- Window Matrix
         cv::Mat output;
         //-- Camera Number
@@ -60,6 +62,8 @@ class ConvexHull {
         void bubbleSort() noexcept;
         void quickSort() noexcept;
         void insertionSort() noexcept;
+        void selectionSort() noexcept;
+        void mergeSort() noexcept;
         //-- Creates ConvexHull
         void calcConvexHull() noexcept;
         //-- Calculates Determinant of Two Vectors

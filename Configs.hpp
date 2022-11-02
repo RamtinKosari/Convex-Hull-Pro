@@ -62,10 +62,12 @@ extern int16_t mode;
 //- 2 Stands for Jarvis March's Algorithms
 extern int16_t algorithm;
 //-- Sort Algorithm
-#define DEFAULT_SORT_ALGORITHM 1
+#define DEFAULT_SORT_ALGORITHM 4
 //- 1 Stands for Bubble Sort
 //- 2 Stands for Quick Sort
 //- 3 Stands for Insertion Sort
+//- 4 Stands for Selection Sort
+//- 5 Stands for Merge Sort
 extern int16_t sortAlgorithm;
 //-- Treshold Constant Value
 #define treshValue 230
@@ -77,15 +79,15 @@ extern int16_t sortAlgorithm;
 extern bool graphics;
 //-- Refresh Time Between Frames (for Video Capturing)
 //- in Miliseconds
-#define refreshRate 10
+#define refreshRate 1
 //-- Separate Value
 extern int64_t separate;
 //- Point Size
 #define pointSize 1
 //- Point Color
 #define pointBlue 255
-#define pointGreen 120
-#define pointRed 0
+#define pointGreen 240
+#define pointRed 113
 //- Origin Point Size
 #define originSize 5
 //- Origin Point Color

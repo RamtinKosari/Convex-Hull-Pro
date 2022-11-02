@@ -49,6 +49,7 @@ ConvexHull::ConvexHull() {
     } else {
         std::cout << "\033[0;31mInvalid Mode !\033[0;36m Check Configs Header File\033[0m" << std::endl;
     }
+
 }
 
 //-- Destructor 
@@ -121,7 +122,7 @@ bool ConvexHull::initialize() noexcept(true) {
         screen.height = DEFAULT_HEIGHT;
         screen.width = DEFAULT_WIDTH;
     }
-    //-- Terminal Logger
+    //-- Terminal Logger -> Shows Needed System Info
     if (terminal) {
         //- OS Name    
         std::cout << "\033[0;36m- Operating System \033[0m" << osName << std::endl;
@@ -197,25 +198,24 @@ bool ConvexHull::initialize() noexcept(true) {
         if (amount < 500) {
             separate = 1;
         } else if (amount >= 500 && amount < 1500) {
-            separate = 3;
+            separate = 2;
         } else if (amount >= 1250 && amount < 2000) {
-            separate = 9;
+            separate = 3;
         } else if (amount >= 2000 && amount < 3500) {
-            separate = 27;
+            separate = 4;
         } else {
-            separate = 50;
+            separate = 27;
         }
-        cv::Mat tmp;
         for (int i = 0; i < 255 * 3; i++) {
             output.copyTo(tmp);
-            cv::putText(tmp, "by Ramtin Kosari", cv::Point(windowLength * 7.4 / 20, windowWidth * 5.4 / 10), cv::FONT_HERSHEY_COMPLEX, int(fontSize) / 1.2, cv::Scalar(i / 4, i / 4, i / 4));
+            cv::putText(tmp, "by Ramtin Kosari", cv::Point(windowLength * 7.6 / 20, windowWidth * 5.4 / 10), cv::FONT_HERSHEY_COMPLEX, int(fontSize) / 1.2, cv::Scalar(i / 4, i / 4, i / 4));
             if (i < 255) {
-                cv::putText(tmp, "Graphics Has been Enabled", cv::Point(windowLength * 5 / 20, windowWidth / 2), cv::FONT_HERSHEY_COMPLEX, fontSize, cv::Scalar(i, i, 0));
+                cv::putText(tmp, "Graphics Has been Enabled", cv::Point(windowLength * 5.4 / 20, windowWidth / 2), cv::FONT_HERSHEY_COMPLEX, fontSize, cv::Scalar(i, i, 0));
             } else if (i >= 255 * 2) {
-                cv::putText(tmp, "Graphics Has been Enabled", cv::Point(windowLength * 5 / 20, windowWidth / 2), cv::FONT_HERSHEY_COMPLEX, fontSize, cv::Scalar(255 - (i - 255 * 2), 255 - (i - 255 * 2), 0));
+                cv::putText(tmp, "Graphics Has been Enabled", cv::Point(windowLength * 5.4 / 20, windowWidth / 2), cv::FONT_HERSHEY_COMPLEX, fontSize, cv::Scalar(255 - (i - 255 * 2), 255 - (i - 255 * 2), 0));
                 cv::rectangle(tmp, cv::Point(windowLength / 2 - (i - 255 * 2), windowWidth * 5.2 / 10), cv::Point(windowLength / 2 + (i - 255 * 2), windowWidth * 5.6 / 10), cv::Scalar(windowBlue, windowGreen, windowRed), -1, 8, 0);
             } else {
-                cv::putText(tmp, "Graphics Has been Enabled", cv::Point(windowLength * 5 / 20, windowWidth / 2), cv::FONT_HERSHEY_COMPLEX, fontSize, cv::Scalar(255, 255, 0));
+                cv::putText(tmp, "Graphics Has been Enabled", cv::Point(windowLength * 5.4 / 20, windowWidth / 2), cv::FONT_HERSHEY_COMPLEX, fontSize, cv::Scalar(255, 255, 0));
             }
             cv::imshow("output", tmp);
             cv::waitKey(5);
@@ -255,43 +255,57 @@ bool ConvexHull::generateData() noexcept(true) {
         padding.horizontal.right = windowLength * 8 / 10;
         padding.vertical.upper = windowWidth * 8 / 10;
         padding.vertical.lower = windowWidth * 2 / 10;
-        volatile int paddingValue = ((padding.horizontal.left + padding.horizontal.right) / 2 + (padding.vertical.lower + padding.vertical.upper) / 2) / 14;
         //-- Creates Engine That Generates Random Numbers
         std::random_device RANDOM;
         std::default_random_engine engine(RANDOM());
         std::uniform_int_distribution <int> distX(padding.horizontal.left, padding.horizontal.right);
         std::uniform_int_distribution <int> distY(padding.vertical.lower, padding.vertical.upper);
+        std::uniform_int_distribution <int> distXCenter(padding.horizontal.left + windowLength * 3.5 / 10, padding.horizontal.right - windowLength * 3.5 / 10);
+        std::uniform_int_distribution <int> distYCenter(padding.vertical.lower + windowWidth * 3.5 / 10, padding.vertical.upper - windowWidth * 3.5 / 10);
+        // std::uniform_int_distribution <int> distYCenter(30, 90);
         //-- Generating Points
         volatile int tmpX,tmpY;
         volatile int sign = 1;
+        output.copyTo(tmp);
         for (int counter = 0; counter < DEFAULT_AMOUNT; counter++) {
+            //-- Generates Random Points
             points.x.push_back(distX(engine));
             points.y.push_back(distY(engine));
             //-- Finds Origin Point During Generating Points
             if (points.y[counter] > origin.y) {
                 origin.x = points.x[counter];
                 origin.y = points.y[counter];
-                if (graphics) {
-                    cv::circle(output, cv::Point(points.x[counter], points.y[counter]), pointSize, cv::Scalar(0, 255, 255), -1, 8, 0);
-                    cv::imshow("output", output);
-                    cv::waitKey(1);
-                }
+                // if (graphics) {
+                //     cv::circle(tmp, cv::Point(origin.x, origin.y), 10, cv::Scalar(0, 255, 0), 1, 8, 0);
+                //     cv::line(tmp, cv::Point(origin.x + 3, origin.y + 3), cv::Point(origin.x + 17, origin.y + 15), cv::Scalar(0, 255, 0), 1, 8, 0);
+                //     cv::line(tmp, cv::Point(origin.x + 3, origin.y - 3), cv::Point(origin.x + 17, origin.y - 15), cv::Scalar(0, 255, 0), 1, 8, 0);
+                //     cv::line(tmp, cv::Point(origin.x - 3, origin.y + 3), cv::Point(origin.x - 17, origin.y + 15), cv::Scalar(0, 255, 0), 1, 8, 0);
+                //     cv::line(tmp, cv::Point(origin.x - 3, origin.y - 3), cv::Point(origin.x - 17, origin.y - 15), cv::Scalar(0, 255, 0), 1, 8, 0);
+                //     if (counter > 0) {
+                //         cv::line(output, cv::Point(origin.x, origin.y), cv::Point(points.x[counter], points.y[counter]), cv::Scalar(255, 255, 255), 1, 8, 0);
+                //     }
+                // }
+            } else {
+                output.copyTo(tmp);
             }
+            //-- Graphic Section
             if (graphics) {
                 tmpX = points.x[counter];
                 tmpY = points.y[counter];
-                cv::circle(output, cv::Point(tmpX, tmpY), pointSize, cv::Scalar(pointBlue, pointGreen, pointRed), -1, cv::LINE_8, 0);
+                // cv::circle(tmp, cv::Point(tmpX, tmpY), 10, cv::Scalar(255, 255, 255), 1, 8, 0);
+                // cv::circle(tmp, cv::Point(tmpX, tmpY), pointSize, cv::Scalar(0, 0, 255), -1, cv::LINE_8, 0);
+                cv::circle(output, cv::Point(tmpX, tmpY), pointSize, cv::Scalar(pointBlue / 2, pointGreen / 2, pointRed / 2), -1, cv::LINE_8, 0);
+                // cv::line(tmp, cv::Point(tmpX + 3, tmpY + 3), cv::Point(tmpX + 17, tmpY + 15), cv::Scalar(255, 255, 255), 1, 8, 0);
+                // cv::line(tmp, cv::Point(tmpX + 3, tmpY - 3), cv::Point(tmpX + 17, tmpY - 15), cv::Scalar(255, 255, 255), 1, 8, 0);
+                // cv::line(tmp, cv::Point(tmpX - 3, tmpY + 3), cv::Point(tmpX - 17, tmpY + 15), cv::Scalar(255, 255, 255), 1, 8, 0);
+                // cv::line(tmp, cv::Point(tmpX - 3, tmpY - 3), cv::Point(tmpX - 17, tmpY - 15), cv::Scalar(255, 255, 255), 1, 8, 0);
+                // cv::circle(tmp, cv::Point(points.x[counter], points.y[counter]), pointSize, cv::Scalar(0, 255, 255), -1, 8, 0);
                 cv::imshow("output", output);
             }
             cv::waitKey(1);
         }
         calculateTheta();
-        sortPoints(); // -- Has Bug : 0 - 0 - 0
-        if (terminal) {
-            for (int i = 0; i < amount; i++) {
-                std::cout << points.x[i] << " - " << points.y[i] << " - \033[0;93m" << points.theta[i] << "\033[0m" << std::endl;
-            }
-        }
+        sortPoints();
         if (graphics) {
             cv::imshow("output", output);
             cv::waitKey(0);
@@ -306,6 +320,7 @@ bool ConvexHull::generateData() noexcept(true) {
     } else if (mode == 3) {
         cv::VideoCapture capture(cameraNumber);
         while (true) {
+            output.copyTo(tmp);
             amount = 0;
             capture >> output;
             cv::cvtColor(output, output, cv::COLOR_BGR2GRAY);
@@ -331,6 +346,12 @@ bool ConvexHull::generateData() noexcept(true) {
                 cv::imshow("output", output);
                 cv::waitKey(refreshRate);
             }
+        }
+    }
+    //-- Terminal Logger -> Shows Sorted Points
+    if (terminal) {
+        for (int i = 0; i < amount; i++) {
+            std::cout << points.x[i] << " - " << points.y[i] << " - \033[0;93m" << points.theta[i] << "\033[0m" << std::endl;
         }
     }
     //-- Return Secton
@@ -376,6 +397,16 @@ void ConvexHull::treshold() noexcept(true) {
 void ConvexHull::calculateTheta() noexcept(true) {
     for (int i = 0; i < amount; i++) {
         points.theta.push_back(atan2(origin.y - points.y[i], origin.x - points.x[i]) * 180 / M_PI);
+        if (graphics) {
+            if (i % separate == 0) {
+                cv::imshow("output", tmp);
+                cv::waitKey(1);
+                output.copyTo(tmp);
+            }
+            cv::line(tmp, cv::Point(origin.x, origin.y), cv::Point(points.x[i], points.y[i]), cv::Scalar(lineBlue, lineGreen, lineRed), 1, 8, 0);
+            cv::circle(output, cv::Point(points.x[i], points.y[i]), pointSize, cv::Scalar(pointBlue, pointGreen, pointRed), -1, 8, 0);
+            cv::circle(tmp, cv::Point(points.x[i], points.y[i]), pointSize, cv::Scalar(pointBlue, pointGreen, pointRed), -1, 8, 0);
+        }
     }
 }
 
@@ -394,27 +425,30 @@ void ConvexHull::sortPoints() noexcept(true) {
             insertionSort();
             break;
         }
+        case 4: {
+            selectionSort();
+            break;
+        }
         default:
             std::cout << "\033[0;31mWrong Sort Algorithm\033[0;36m" << std::endl;
             exit(0);
     }
-    //-- Debug
-    //- Start
-    for (int i = 0; i < amount; i++) {
-        cv::circle(output, cv::Point(points.x[i], points.y[i]), pointSize, cv::Scalar(0, 255, 0), -1, 8, 0);
-        cv::imshow("output", output);
-        cv::waitKey(10);
+    if (graphics) {
+        for (int i = 0; i < amount; i++) {
+            cv::circle(output, cv::Point(points.x[i], points.y[i]), pointSize, cv::Scalar(0, 255, 0), -1, 8, 0);
+            cv::imshow("output", output);
+            cv::waitKey(1);
+        }
     }
-    //- End
 }
 
 //-- Bubble Sort Algorithm
 void ConvexHull::bubbleSort() noexcept(true) {
-    volatile int tmpX, tmpY, tmpTheta;
-    cv::Mat tmp;
-    output.copyTo(tmp);
-    for (int i = 0; i < amount; i++) {
-        for (int j = 0; j < amount; j++) {
+    std::cout << "bubble sort" << std::endl;
+    volatile int tmpX, tmpY;
+    volatile double tmpTheta;
+    for (int i = 0; i < amount - 1; i++) {
+        for (int j = 0; j < amount - 1; j++) {
             if (points.theta[j] > points.theta[j + 1]) {
                 tmpX = points.x[j + 1];
                 points.x[j + 1] = points.x[j];
@@ -430,31 +464,64 @@ void ConvexHull::bubbleSort() noexcept(true) {
     }
 }
 
+//-- Quick Sort Algorithm
+void ConvexHull::quickSort() noexcept(true) {
+
+}
+
 //-- Insertion Sort Algorithm
 void ConvexHull::insertionSort() noexcept(true) {
-    volatile int tmp;
-    for (int i = 1, j; i < points.theta.size(); i++) {
-        tmp = points.theta[i];
-        j = tmp - 1;
-        while (tmp < points.x[j] && j >= 0) {
+    std::cout << "insertion sort" << std::endl;
+    volatile int tmpX, tmpY, j;
+    volatile double tmpTheta;
+    for (int i = 1; i < amount; i++) {
+        tmpX = points.x[i];
+        tmpY = points.y[i];
+        tmpTheta = points.theta[i];
+        j = i - 1;
+        while (points.theta[j] > tmpTheta) {
+            points.x[j + 1] = points.x[j];
+            points.y[j + 1] = points.y[j];
             points.theta[j + 1] = points.theta[j];
-            --j;
+            j--;
         }
-        points.theta[j + 1] = tmp;
+        points.x[j + 1] = tmpX;
+        points.y[j + 1] = tmpY;
+        points.theta[j + 1] = tmpTheta;
     }
 }
 
-void ConvexHull::quickSort() noexcept(true) {
+//-- Selection Sort Algorithm
+void ConvexHull::selectionSort() noexcept(true) {
+    std::cout << "selection sort" << std::endl;
+    volatile int tmpX, tmpY, minimum;
+    volatile double tmpTheta;
+    for (int i = 0; i < amount - 1; i++) {
+        minimum = i;
+        for (int j = i + 1; j < amount; j++) {
+            if (points.theta[minimum] > points.theta[j]) {
+                minimum = j;
+            }
+        }
+        tmpX = points.x[i];
+        points.x[i] = points.x[minimum];
+        points.x[minimum] = tmpX;
+        tmpY = points.y[i];
+        points.y[i] = points.y[minimum];
+        points.y[minimum] = tmpY;
+        tmpTheta = points.theta[i];
+        points.theta[i] = points.theta[minimum];
+        points.theta[minimum] = tmpTheta;
+    }
+}
 
+//-- Merge Sort Algorithm
+void ConvexHull::mergeSort() noexcept(true) {
+    
 }
 
 //-- Creates Convex Hull
 void ConvexHull::calcConvexHull() noexcept(true) {
 
 }
-
-//-- Creates ConvexHull
-// long int ConvexHull::determinant(int xSelected, int ySelected, int xLast, int yLast, int xBeforeLast, int yBeforeLast) noexcept(true) {
-
-// }
 
