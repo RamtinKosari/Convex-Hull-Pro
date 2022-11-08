@@ -63,7 +63,7 @@ extern int16_t mode;
 //- 12 Stands for Both Algorithms Above
 extern int16_t algorithm;
 //-- Sort Algorithm
-#define DEFAULT_SORT_ALGORITHM 4
+#define DEFAULT_SORT_ALGORITHM 3
 //- 1 Stands for Bubble Sort
 //- 2 Stands for Quick Sort
 //- 3 Stands for Insertion Sort
@@ -117,8 +117,7 @@ extern int16_t terminal;
 
 //-- Points
 //- Default Amount
-#define DEFAULT_AMOUNT 40
-extern long long int amount;
+#define DEFAULT_AMOUNT 400
 //- Max Amount
 #define max 9000000
 //- Min Amount

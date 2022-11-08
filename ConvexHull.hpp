@@ -57,13 +57,20 @@ class ConvexHull {
         void treshold() noexcept;
         //-- Calculate Angle Theta of Points
         void calculateTheta() noexcept;
+        //-- Handles Collinear Points
+        int64_t collinearHandler() noexcept;
         //-- Sort Points by Their Angle Theta from Origin Point
         void sortPoints() noexcept;
         //-- Sort Algorithms
+        //- Bubble Sort
         void bubbleSort() noexcept;
+        //- Quick Sort
         void quickSort() noexcept;
+        //- Insertion Sort
         void insertionSort() noexcept;
+        //- Selection Sort
         void selectionSort() noexcept;
+        //- Merge Sort
         void mergeSort() noexcept;
         //-- Creates ConvexHull According to Selected Algorithm
         //- Graham Scan Algorithm
@@ -72,7 +79,7 @@ class ConvexHull {
         void JarvisMarch() noexcept;      
         //- Compare Executation Time of Both Algorithms
         void compare() noexcept;  
-        //-- Calculates Determinant of Two Vectors
+        //- Calculates Determinant of Two Vectors
         int64_t determinant(cv::Point &, cv::Point &, cv::Point &) noexcept;
         //-- Show Result
         void showResult() noexcept;

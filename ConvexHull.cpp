@@ -2,12 +2,6 @@
 
 //-- Constructor
 ConvexHull::ConvexHull() {
-    mode = DEFAULT_MODE;
-    osType = DEFAULT_OS;
-    terminal = DEFAULT_TERMINAL;
-    graphics = DEFAULT_GRAPHICS;
-    algorithm = DEFAULT_ALGORITHM;
-    sortAlgorithm = DEFAULT_SORT_ALGORITHM;
     //- Check If Config File is Included or Not
     std::cout << "\033[0;36mChecking Configs Header File ...\033[0m" << std::endl;
     if (checkConfigs()) {
@@ -96,8 +90,16 @@ bool ConvexHull::checkConfigs() noexcept(true) {
 
 //-- Method to Initialize Program
 bool ConvexHull::initialize() noexcept(true) {
-    //-- Configuring Output Display Window According to Mode
+    //-- Configuring Default Settings
+    sortAlgorithm = DEFAULT_SORT_ALGORITHM;
+    algorithm = DEFAULT_ALGORITHM;
+    graphics = DEFAULT_GRAPHICS;
+    terminal = DEFAULT_TERMINAL;
+    osType = DEFAULT_OS;
+    mode = DEFAULT_MODE;
+    //-- Will be Changed if Initializing is Completed
     bool status = false;
+    //-- Configuring Output Display Window According to Mode
     output = cv::Mat(windowWidth, windowLength, CV_8UC3, cv::Scalar(0, 0, 40));
     //-- Get Screen Size to Put Output Display Window in The Middle of Screen
     display screen;
@@ -274,7 +276,6 @@ bool ConvexHull::generateData() noexcept(true) {
         // std::uniform_int_distribution <int> distYCenter(30, 90);
         //-- Generating Points
         volatile int tmpX,tmpY;
-        volatile int sign = 1;
         output.copyTo(tmp);
         for (int counter = 0; counter < DEFAULT_AMOUNT; counter++) {
             //-- Generates Random Points
@@ -314,14 +315,16 @@ bool ConvexHull::generateData() noexcept(true) {
             cv::waitKey(1);
         }
         calculateTheta();
+        std::cout << collinearHandler() << " Collindear Points Have been Found !" << std::endl;
         sortPoints();
         if (graphics) {
             cv::imshow("output", output);
-            cv::waitKey(0);
+            cv::waitKey(1);
         }
     } else if (mode == 2) {
         treshold();
         calculateTheta();
+        collinearHandler();
         sortPoints();
         if (graphics) {
             cv::imshow("output", output);
@@ -352,6 +355,7 @@ bool ConvexHull::generateData() noexcept(true) {
             }
             treshold();
             calculateTheta();
+            collinearHandler();
             sortPoints();
             if (graphics) {
                 cv::imshow("output", output);
@@ -360,11 +364,11 @@ bool ConvexHull::generateData() noexcept(true) {
         }
     }
     //-- Terminal Logger -> Shows Sorted Points
-    if (terminal) {
-        for (int i = 0; i < points.amount; i++) {
-            std::cout << points.x[i] << " - " << points.y[i] << " - \033[0;93m" << points.theta[i] << "\033[0m" << std::endl;
-        }
-    }
+    // if (terminal) {
+    //     for (int i = 0; i < points.amount; i++) {
+    //         std::cout << points.x[i] << " - " << points.y[i] << " - \033[0;93m" << points.theta[i] << "\033[0m" << std::endl;
+    //     }
+    // }
     //-- Return Secton
     if (points.amount) {
         return true;
@@ -477,6 +481,9 @@ void ConvexHull::bubbleSort() noexcept(true) {
                 points.theta[j + 1] = points.theta[j];
                 points.theta[j] = tmpTheta;
             }
+            if (points.theta[j] == points.theta[i]) {
+                
+            }
         }
     }
 }
@@ -505,6 +512,7 @@ void ConvexHull::insertionSort() noexcept(true) {
         points.x[j + 1] = tmpX;
         points.y[j + 1] = tmpY;
         points.theta[j + 1] = tmpTheta;
+        // if (points.theta[i] > )
     }
 }
 
@@ -535,6 +543,54 @@ void ConvexHull::selectionSort() noexcept(true) {
 //-- Merge Sort Algorithm
 void ConvexHull::mergeSort() noexcept(true) {
     
+}
+
+//-- Calculates Distance of Two Points
+int64_t ConvexHull::collinearHandler() noexcept(true) {
+    volatile int64_t dist1 = 0;
+    volatile int64_t dist2 = 0;
+    volatile int64_t distance = 0;
+    volatile int16_t collinearCount = 0;
+    cv::circle(output, cv::Point(origin.x, origin.y), pointSize * 5, cv::Scalar(255, 255, 255), 1, 8, 0);
+    for (int i = 0; i < points.amount; i++) {
+        collinearCount = 0;
+        for (int j = i + 1; j < points.amount; j++) {
+            volatile int count = 0;
+            if (points.theta[i] == points.theta[j]) {
+                count++;
+                if (graphics) {
+                    cv::circle(output, cv::Point(points.x[i], points.y[i]), 9, cv::Scalar(0, 255, 255), 1, 8, 0);
+                    cv::circle(output, cv::Point(points.x[j], points.y[j]), 12, cv::Scalar(0, 120, 255), 1, 8, 0);
+                    cv::line(output, cv::Point(points.x[i], points.y[i]), cv::Point(points.x[j], points.y[j]), cv::Scalar(170, 170, 170), 1, 8, 0);
+                    cv::imshow("output", output);
+                    cv::waitKey(0);
+                }
+                dist1 = sqrt(pow(points.x[j] - origin.x, 2) + pow(points.y[j] - origin.y, 2));
+                dist2 = sqrt(pow(points.x[i] - origin.x, 2) + pow(points.y[i] - origin.y, 2));
+                distance = dist2 - dist1;
+                if (distance > 0) {
+                    points.theta.erase(points.theta.begin() + j);
+                    points.x.erase(points.x.begin() + j);
+                    points.y.erase(points.y.begin() + j);
+                } else if (distance < 0) {
+                    points.theta.erase(points.theta.begin() + i);
+                    points.x.erase(points.x.begin() + i);
+                    points.y.erase(points.y.begin() + i);
+                } else if (distance == 0) {
+                    points.theta.erase(points.theta.begin() + j);
+                    points.x.erase(points.x.begin() + j);
+                    points.y.erase(points.y.begin() + j);
+                }
+                if (count == 1) {
+                    collinearCount++;
+                }
+            }
+        }
+    }
+    if (collinearCount > 1) {
+        return collinearCount;
+    }
+    return 0;
 }
 
 //-- Graham Scan Algorithm
@@ -610,12 +666,14 @@ void ConvexHull::showResult() noexcept(true) {
             cv::line(output, cv::Point(convexed.x[i], convexed.y[i]), cv::Point(convexed.x[i - 1], convexed.y[i - 1]), cv::Scalar(0, 140, 0), lineSize, 8, 0);
         }
         cv::circle(output, cv::Point(convexed.x[i], convexed.y[i]), pointSize, cv::Scalar(0, 255, 0), -1, 8, 0);
+        cv::putText(output, std::to_string(i), cv::Point(convexed.x[i], convexed.y[i]), cv::FONT_HERSHEY_TRIPLEX, fontSize, cv::Scalar(255, 255, 255), 1, 8, 0);
         if (graphics) {
             cv::imshow("output", output);
             cv::waitKey(1);
         }
     }
-    cv::line(output, cv::Point(convexed.x[0], convexed.y[0]), cv::Point(convexed.x[1], convexed.y[1]), cv::Scalar(0, 140, 0), lineSize, 8, 0);
+    std::cout << "cnvx amunt : " << convexed.amount << std::endl;
+    // cv::line(output, cv::Point(convexed.x[0], convexed.y[0]), cv::Point(convexed.x[convexed.amount], convexed.y[convexed.amount]), cv::Scalar(0, 140, 0), lineSize, 8, 0);
     if (graphics) {
         cv::imshow("output", output);
     }
