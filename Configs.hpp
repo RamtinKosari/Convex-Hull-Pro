@@ -60,6 +60,7 @@ extern int16_t mode;
 #define DEFAULT_ALGORITHM 1
 //- 1 Stands for Graham Scan's Algorithms
 //- 2 Stands for Jarvis March's Algorithms
+//- 12 Stands for Both Algorithms Above
 extern int16_t algorithm;
 //-- Sort Algorithm
 #define DEFAULT_SORT_ALGORITHM 4
@@ -116,7 +117,7 @@ extern int16_t terminal;
 
 //-- Points
 //- Default Amount
-#define DEFAULT_AMOUNT 2000
+#define DEFAULT_AMOUNT 40
 extern long long int amount;
 //- Max Amount
 #define max 9000000

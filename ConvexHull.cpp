@@ -27,14 +27,14 @@ ConvexHull::ConvexHull() {
     if (mode == 1) {
         std::cout << "\033[0;36mGenerating Random Points ...\033[0m" << std::endl;
         if (generateData()) {
-            std::cout << "\033[0;36m- \033[0;97m" << amount << "\033[0;36m Points Have been Generated\033[0;91m Successfully\033[0m" << std::endl;
+            std::cout << "\033[0;36m- \033[0;97m" << points.amount << "\033[0;36m Points Have been Generated\033[0;91m Successfully\033[0m" << std::endl;
         } else {
             std::cout << "\033[0;36m- Points Generation Was \033[0;31mUnsuccessful\033[0m" << std::endl;
         }
     } else if (mode == 2) {
         std::cout << "\033[0;36mGenerating Points from Source Picture ...\033[0m" << std::endl;
         if (generateData()) {
-            std::cout << "\033[0;36m- \033[0;97m" << amount << "\033[0;36m Points Have been Generated\033[0;91m Successfully\033[0m" << std::endl;
+            std::cout << "\033[0;36m- \033[0;97m" << points.amount << "\033[0;36m Points Have been Generated\033[0;91m Successfully\033[0m" << std::endl;
         } else {
             std::cout << "\033[0;36m- Points Generation Was \033[0;31mUnsuccessful\033[0m" << std::endl;
         }
@@ -42,14 +42,22 @@ ConvexHull::ConvexHull() {
     } else if (mode == 3) {
         std::cout << "\033[0;36mGenerating Points from Video Frames\033[0m" << std::endl;
         if (generateData()) {
-            std::cout << "\033[0;36m- \033[0;97m" << amount << "\033[0;36m Points Have been Generated\033[0;91m Successfully\033[0m" << std::endl;
+            std::cout << "\033[0;36m- \033[0;97m" << points.amount << "\033[0;36m Points Have been Generated\033[0;91m Successfully\033[0m" << std::endl;
         } else {
             std::cout << "\033[0;36m- Points Generation Was \033[0;31mUnsuccessful\033[0m" << std::endl;
         }
     } else {
         std::cout << "\033[0;31mInvalid Mode !\033[0;36m Check Configs Header File\033[0m" << std::endl;
     }
-
+    //-- Calculate Convex Hull
+    if (algorithm == 1) {
+        GrahamScan();
+    } else if (algorithm == 2) {
+        JarvisMarch();
+    } else {
+        
+    }
+    showResult();
 }
 
 //-- Destructor 
@@ -191,17 +199,18 @@ bool ConvexHull::initialize() noexcept(true) {
     convexed.x.resize(0);
     convexed.y.resize(0);
     convexed.theta.resize(0);
+    convexed.amount = 0;
     origin.x = 0;
     origin.y = 0;
     //-- Configure Separate Value if Graphics is Enabled and Graphics Status Display
     if (graphics) {
-        if (amount < 500) {
+        if (points.amount < 500) {
             separate = 1;
-        } else if (amount >= 500 && amount < 1500) {
+        } else if (points.amount >= 500 && points.amount < 1500) {
             separate = 2;
-        } else if (amount >= 1250 && amount < 2000) {
+        } else if (points.amount >= 1250 && points.amount < 2000) {
             separate = 3;
-        } else if (amount >= 2000 && amount < 3500) {
+        } else if (points.amount >= 2000 && points.amount < 3500) {
             separate = 4;
         } else {
             separate = 27;
@@ -231,10 +240,10 @@ bool ConvexHull::initialize() noexcept(true) {
 
 //-- Generate Points According to Mode
 bool ConvexHull::generateData() noexcept(true) {
-    amount = 0;
+    points.amount = 0;
     if (mode == 1) {
-        //-- Set Amount of Points That are being Generated
-        amount = DEFAULT_AMOUNT; 
+        //-- Set points.amount of Points That are being Generated
+        points.amount = DEFAULT_AMOUNT; 
         //-- Define Random Points Zone
         struct paddingCNF {
             //-- in Horizontal Axis
@@ -313,6 +322,7 @@ bool ConvexHull::generateData() noexcept(true) {
     } else if (mode == 2) {
         treshold();
         calculateTheta();
+        sortPoints();
         if (graphics) {
             cv::imshow("output", output);
             cv::waitKey(2000);
@@ -321,7 +331,7 @@ bool ConvexHull::generateData() noexcept(true) {
         cv::VideoCapture capture(cameraNumber);
         while (true) {
             output.copyTo(tmp);
-            amount = 0;
+            points.amount = 0;
             capture >> output;
             cv::cvtColor(output, output, cv::COLOR_BGR2GRAY);
             cv::resize(output, output,cv::Size(frameWidth, frameLength));
@@ -342,6 +352,7 @@ bool ConvexHull::generateData() noexcept(true) {
             }
             treshold();
             calculateTheta();
+            sortPoints();
             if (graphics) {
                 cv::imshow("output", output);
                 cv::waitKey(refreshRate);
@@ -350,12 +361,12 @@ bool ConvexHull::generateData() noexcept(true) {
     }
     //-- Terminal Logger -> Shows Sorted Points
     if (terminal) {
-        for (int i = 0; i < amount; i++) {
+        for (int i = 0; i < points.amount; i++) {
             std::cout << points.x[i] << " - " << points.y[i] << " - \033[0;93m" << points.theta[i] << "\033[0m" << std::endl;
         }
     }
     //-- Return Secton
-    if (amount) {
+    if (points.amount) {
         return true;
     } else {
         return false;
@@ -377,11 +388,11 @@ void ConvexHull::treshold() noexcept(true) {
                 points.x.push_back(tmpX);
                 points.y.push_back(tmpY);
                 //-- Finds Origin Point During Generating Points
-                if (points.y[amount] > origin.y) {
+                if (points.y[points.amount] > origin.y) {
                     origin.x = tmpX;
                     origin.y = tmpY;
                 }
-                amount++;
+                points.amount++;
                 if (graphics) {
                     if (j % 15 == 0) {
                         cv::imshow("output", output);
@@ -395,7 +406,7 @@ void ConvexHull::treshold() noexcept(true) {
 
 //-- Calculate Angle Theta of Points
 void ConvexHull::calculateTheta() noexcept(true) {
-    for (int i = 0; i < amount; i++) {
+    for (int i = 0; i < points.amount; i++) {
         points.theta.push_back(atan2(origin.y - points.y[i], origin.x - points.x[i]) * 180 / M_PI);
         if (graphics) {
             if (i % separate == 0) {
@@ -429,14 +440,20 @@ void ConvexHull::sortPoints() noexcept(true) {
             selectionSort();
             break;
         }
+        case 5: {
+            mergeSort();
+            break;
+        }
         default:
             std::cout << "\033[0;31mWrong Sort Algorithm\033[0;36m" << std::endl;
             exit(0);
     }
     if (graphics) {
-        for (int i = 0; i < amount; i++) {
-            cv::circle(output, cv::Point(points.x[i], points.y[i]), pointSize, cv::Scalar(0, 255, 0), -1, 8, 0);
-            cv::imshow("output", output);
+        cv::Mat tmp;
+        output.copyTo(tmp);
+        for (int i = 0; i < points.amount; i++) {
+            cv::circle(tmp, cv::Point(points.x[i], points.y[i]), pointSize, cv::Scalar(0, 255, 0), -1, 8, 0);
+            cv::imshow("output", tmp);
             cv::waitKey(1);
         }
     }
@@ -447,8 +464,8 @@ void ConvexHull::bubbleSort() noexcept(true) {
     std::cout << "bubble sort" << std::endl;
     volatile int tmpX, tmpY;
     volatile double tmpTheta;
-    for (int i = 0; i < amount - 1; i++) {
-        for (int j = 0; j < amount - 1; j++) {
+    for (int i = 0; i < points.amount - 1; i++) {
+        for (int j = 0; j < points.amount - 1; j++) {
             if (points.theta[j] > points.theta[j + 1]) {
                 tmpX = points.x[j + 1];
                 points.x[j + 1] = points.x[j];
@@ -474,7 +491,7 @@ void ConvexHull::insertionSort() noexcept(true) {
     std::cout << "insertion sort" << std::endl;
     volatile int tmpX, tmpY, j;
     volatile double tmpTheta;
-    for (int i = 1; i < amount; i++) {
+    for (int i = 1; i < points.amount; i++) {
         tmpX = points.x[i];
         tmpY = points.y[i];
         tmpTheta = points.theta[i];
@@ -496,9 +513,9 @@ void ConvexHull::selectionSort() noexcept(true) {
     std::cout << "selection sort" << std::endl;
     volatile int tmpX, tmpY, minimum;
     volatile double tmpTheta;
-    for (int i = 0; i < amount - 1; i++) {
+    for (int i = 0; i < points.amount - 1; i++) {
         minimum = i;
-        for (int j = i + 1; j < amount; j++) {
+        for (int j = i + 1; j < points.amount; j++) {
             if (points.theta[minimum] > points.theta[j]) {
                 minimum = j;
             }
@@ -520,8 +537,89 @@ void ConvexHull::mergeSort() noexcept(true) {
     
 }
 
-//-- Creates Convex Hull
-void ConvexHull::calcConvexHull() noexcept(true) {
+//-- Graham Scan Algorithm
+void ConvexHull::GrahamScan() noexcept(true) {
+    //-- First Store 3 First Sorted Points
+    for (int i = 0; i < 3; i++) {
+        convexed.x.push_back(points.x[i]);
+        convexed.y.push_back(points.y[i]);
+        convexed.theta.push_back(points.theta[i]);
+    }
+    //-- Initialize Counter
+    volatile int64_t counter;
+    counter = 2;
+    //-- Initialize Points
+    cv::Point select;
+    cv::Point last;
+    cv::Point before;
+    //-- Graham Scan Algorithm
+    for (int i = 3; i < points.amount; i++) {
+        while(true) {
+            //-- Set Points in each Iteration
+            select = cv::Point(points.x[i], points.y[i]);
+            last = cv::Point(convexed.x[counter], convexed.y[counter]);
+            before = cv::Point(convexed.x[counter - 1], convexed.y[counter - 1]);
+            if (determinant(select, last, before) < 0) {
+                convexed.x.push_back(points.x[i]);
+                convexed.y.push_back(points.y[i]);
+                convexed.theta.push_back(points.theta[i]);
+                convexed.amount++;
+                counter++;
+                break;
+            } else if (determinant(select, last, before) > 0) {
+                convexed.x.pop_back();
+                convexed.y.pop_back();
+                convexed.theta.pop_back();
+                convexed.amount--;
+                counter--;
+            } else {
+                break;
+            }
+        }
+    }
+}
+
+//-- Jarvis March Algorithm
+void ConvexHull::JarvisMarch() noexcept(true) {
 
 }
 
+//-- Compare Executation Time of Both Algorithms
+void ConvexHull::compare() noexcept(true) {
+
+}
+
+//-- Calculates Determinant of Two Vectors between 3 Points
+int64_t ConvexHull::determinant(cv::Point &selected, cv::Point &last, cv::Point &before) noexcept(true) {
+    //-- Vector A
+    volatile cv::Point a;
+    a.x = selected.x - last.x;
+    a.y = selected.x - last.y;
+    //-- Vector B
+    volatile cv::Point b;
+    b.x = last.x - before.x;
+    b.y = last.y - before.y;
+    //-- Retun Cross
+    return a.x * b.y - a.y * b.x;
+}
+
+//-- Show Result
+void ConvexHull::showResult() noexcept(true) {
+    for (int i = 0; i < convexed.amount; i++) {
+        if (i > 0) {
+            cv::line(output, cv::Point(convexed.x[i], convexed.y[i]), cv::Point(convexed.x[i - 1], convexed.y[i - 1]), cv::Scalar(0, 140, 0), lineSize, 8, 0);
+        }
+        cv::circle(output, cv::Point(convexed.x[i], convexed.y[i]), pointSize, cv::Scalar(0, 255, 0), -1, 8, 0);
+        if (graphics) {
+            cv::imshow("output", output);
+            cv::waitKey(1);
+        }
+    }
+    cv::line(output, cv::Point(convexed.x[0], convexed.y[0]), cv::Point(convexed.x[1], convexed.y[1]), cv::Scalar(0, 140, 0), lineSize, 8, 0);
+    if (graphics) {
+        cv::imshow("output", output);
+    }
+    if (mode == 1 || mode == 2) {
+        cv::waitKey(0);
+    }
+}

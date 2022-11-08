@@ -12,7 +12,6 @@ class ConvexHull {
         int16_t separate;
         int16_t algorithm;
         std::string osName;
-        long long int amount;
         int16_t sortAlgorithm;
         //-- Temp Matrix
         cv::Mat tmp;
@@ -25,6 +24,7 @@ class ConvexHull {
             std::vector <long long int> x;
             std::vector <long long int> y;
             std::vector <double> theta;
+            int64_t amount;
         };
         Data points;
         //-- Structure for Storing Convexed Hull Points Data
@@ -32,6 +32,7 @@ class ConvexHull {
             std::vector <int> x;
             std::vector <int> y;
             std::vector <double> theta;
+            int64_t amount;
         };
         ConvexedData convexed;
         //-- Structure for Storing Origin Point's Data
@@ -64,10 +65,17 @@ class ConvexHull {
         void insertionSort() noexcept;
         void selectionSort() noexcept;
         void mergeSort() noexcept;
-        //-- Creates ConvexHull
-        void calcConvexHull() noexcept;
+        //-- Creates ConvexHull According to Selected Algorithm
+        //- Graham Scan Algorithm
+        void GrahamScan() noexcept;
+        //- Jarvis March Algorithm
+        void JarvisMarch() noexcept;      
+        //- Compare Executation Time of Both Algorithms
+        void compare() noexcept;  
         //-- Calculates Determinant of Two Vectors
-        // long int determinant(int &, int &, int &, int& , int &, int &);
+        int64_t determinant(cv::Point &, cv::Point &, cv::Point &) noexcept;
+        //-- Show Result
+        void showResult() noexcept;
 };
 
 #endif // CONVEXHULL_HPP
