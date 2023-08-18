@@ -174,7 +174,7 @@
      * @note Create Object of this Structure, Assign Configuration and then Pass It as Constructor's Argument
      */
     class Configuration {
-        protected :
+        public :
             /**
              * @brief Graphical Visualization
              * @note It is being Set According to Configuration
@@ -200,7 +200,6 @@
              * @note Default : IN_PLANE
              */
             int __SPACE;
-        public :
             /**
              * @brief Constructor that Sets Convex Hull's Configuration
              * @param _clc Calculating Speed, Default : CALC_SPEED_DETAILS
@@ -236,7 +235,7 @@
             /**
              * @brief Constructor to Initialize Convex Hull Process with Specefic Configuration
              */
-            ConvexHull(Configuration&);
+            ConvexHull(Configuration);
             /**
              * @brief Method to Process Convex Hull Methodes in Order
              * @note When this Methodis Called There is No Need to Call Other Methodes
