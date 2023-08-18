@@ -32,13 +32,25 @@
         # define DEFAULT_OS -1
         # error Program is Only Avalible on Unix Based Systems and Windows
     # endif // Check Operating System
-    //-- Include Libraries
-    # include <vector>
-    # include <iostream>
     //-- Include Configuration
     # ifndef __CONFIGS_HPP
         # include "Configs.hpp"
     # endif // __CONFIGS_HPP
+    //-- Include Libraries
+    # include <vector>
+    # include <iostream>
+    # if GRAPHICAL_VIEW
+        # include <opencv4/opencv2/highgui.hpp>
+        # include <opencv4/opencv2/imgproc.hpp>
+    # else
+        # pragma message \
+        "                                                                       \
+         GRAPHICAL_VIEW is Turned Off ! These Options are No Longer Usable :    \
+         CALC_SPEED_FAST    CALC_SPEED_NORMAL   CALC_SPEED_DETAILS              \ 
+         GENERATE_FROM_CAMERA_SOURCE    GENERATE_FROM_IMAGE                     \
+         You Can Turn It On in Configuration File                               \
+        "
+    # endif // GRAPHICAL_VIEW
     //-- Points Generating Methodes
     enum PointGenerationMethod {
         /**
@@ -164,6 +176,11 @@
     class Configuration {
         protected :
             /**
+             * @brief Graphical Visualization
+             * @note It is being Set According to Configuration
+             */
+            bool __GRAPHICAL;
+            /**
              * @brief Calculating Speed
              * @note Default : CALC_SPEED_DETAILS
              */
@@ -199,21 +216,34 @@
             double theta;
             int x;
             int y;
+            int z;
         public:
             Point();
     };
     //-- Convex Hull Class Definition
     class ConvexHull : public Configuration {
         private:
+            bool isAutomatic;
+            /**
+             * @brief Points Data
+             */
             std::vector<Point> points;
+            /**
+             * @brief ConvexHull's Configuration
+             */
+            Configuration cnf;
         public:
-            ConvexHull();
-            bool GeneratePoints(Configuration&);
+            /**
+             * @brief Constructor to Initialize Convex Hull Process with Specefic Configuration
+             */
+            ConvexHull(Configuration&);
+            /**
+             * @brief Method to Process Convex Hull Methodes in Order
+             * @note When this Methodis Called There is No Need to Call Other Methodes
+             * @return true Automatic Processing
+             * @return false Client's Function Calling Processing
+             */
+            bool automatic();
+            bool GeneratePoints();
     };
-    /**
-     * @brief Method to Log in-Terminal Messages
-     * @param message Input Message to be Logged
-     * @note Prints Log if Logging Messages is Activated in Configuration File
-     */
-    void logger(const std::string message);
 # endif // __CONVEX_HULL_HPP

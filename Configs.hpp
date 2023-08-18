@@ -8,7 +8,8 @@
     # define __CONFIGS_HPP
     /**
      * @brief Graphical Visualization
-     * @note If True, It will Take Some More Moments to Process Data
+     * @note if 1, It will Take Some More Moments to Process Data if 0, It
+     * will be Turned Off
      * @note Also Graphical Operations Uses OpenCV That Should be Installed
      * on Your System in Order to Use This Option
      */

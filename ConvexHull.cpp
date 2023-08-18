@@ -9,35 +9,50 @@
         int _alg = GRAHAM_SCAN,
         int _spc = IN_PLANE
     ) {
+        std::cout << LOG "Initializing Configuration" ENDL;
         //-- Check if Selected Generator Method is Correct
         if (_gen <= -1 && _gen >= -5) {
             __GENERATOR = _gen;
         } else {
-            std::cout << FAILED "Generator Method is Invalid" ENDL;
+            std::cout << TAB FAILED "Generator Method is Invalid" ENDL;
         }
         //-- Check if Selected Calculation Speed Method is Correct
         if (_clc <= -6 && _clc >= -9) {
-            __CALCULATION = _clc;
+            if (GRAPHICAL_VIEW != true) {
+                __CALCULATION = CALC_SPEED_ULTRA;
+            } else {
+                __CALCULATION = _clc;
+            }
         } else {
-            std::cout << FAILED "Calculation Speed Method is Invalid" ENDL;
+            std::cout << TAB FAILED "Calculation Speed Method is Invalid" ENDL;
+            return false;
         }
         //-- Check if Selected Algorithm is Correct
         if (_alg >= 0 && _alg <=7) {        
             __ALGORITHM = _alg;
         } else {
-            std::cout << FAILED "Convex Hull Algorithm is Invalid" ENDL;
+            std::cout << TAB FAILED "Convex Hull Algorithm is Invalid" ENDL;
+            return false;
         }
         //-- Check if Selected Space is Correct
         if (_spc >= 8 && _spc <= 9) {
             __SPACE = _spc;
         } else {
-            std::cout << FAILED "Mathematical Space is Invalid" ENDL;
+            std::cout << TAB FAILED "Mathematical Space is Invalid" ENDL;
+            return false;
         }
+        return true;
     }
     //-- Points Constructor
     Point::Point() {
         y = GDW_HEIGHT / 2;
         x = GDW_WIDTH / 2;
         theta = 0;
+        z = 0;
+    }
+    //-- Convex Hull Constructor
+    ConvexHull::ConvexHull(Configuration& __input_config) {
+        cnf = __input_config;
+        isAutomatic = false;
     }
 # endif // __CONVEX_HULL_HPP
