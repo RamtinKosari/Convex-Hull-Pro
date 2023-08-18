@@ -45,28 +45,28 @@
          * @brief Generate Random Points
          * @note Amount of Generated Points Can be Configured in Configs.hpp File
          */
-        GENERATE_RANDOM,
+        GENERATE_RANDOM = -1,
         /**
          * @brief Generate Points from Input Points Vector
          * @note T
          */
-        GENERATE_WITH_DATA,
+        GENERATE_WITH_DATA = -2,
         /**
          * @brief Generate Points from File
          * @note Input File with Specefic Structure is Needed in Term of Using this Generator
          */
-        GENERATE_FROM_FILE,
+        GENERATE_FROM_FILE = -3,
         /**
          * @brief Generate Points from Image
          * @note Some Algorithms Like Sobel, Treshold, Edge and More will be Affected to
          * Input Image for Extracting Edge Points 
          */
-        GENERATE_FROM_IMAGE,
+        GENERATE_FROM_IMAGE = -4,
         /**
          * @brief Generates Points from Camera
          * @note Same as Generating from Image but Live and from Camera Source
          */
-        GENERATE_FROM_CAMERA_SOURCE
+        GENERATE_FROM_CAMERA_SOURCE = -5
     };
     //-- Calculating Speed Options
     enum SpeedModes {
@@ -75,23 +75,23 @@
          * @note This Speed Mode Uses Multi Threading and Multi Processing and for the
          * Result It Only Calculates Convex Hull's Points
          */
-        CALC_SPEED_ULTRA,
+        CALC_SPEED_ULTRA = -6,
         /**
          * @brief Fast Speed
          * @note This Speed Mode is Same as Ultra Speed but With Normal Graphical Visualization
          */
-        CALC_SPEED_FAST,
+        CALC_SPEED_FAST = -7,
         /**
          * @brief Normal Speed
          * @note Normal Speed Shows Algorithms Step by Step as Fast Possible
          */
-        CALC_SPEED_NORMAL,
+        CALC_SPEED_NORMAL = -8,
         /**
          * @brief Normal Speed with Details
          * @note Shows Full Details with Configured Medium Speed and Pause After Finish
          * of each Step
          */
-        CALC_SPEED_DETAILS
+        CALC_SPEED_DETAILS = -9
     };
     //-- Avalible Algorithms
     enum Algorithms {
@@ -101,61 +101,61 @@
          * the upper and lower hulls separately. It's particularly efficient for point sets
          * that lie on or near a straight line.
          */
-        MONOTONE_CHAIN_ANDREW,
+        MONOTONE_CHAIN_ANDREW = 0,
         /**
          * @brief Time Complexity : O(n * log h), where h is the number of points on the convex hull.
          * @note This is a randomized incremental algorithm that uses divide-and-conquer
          * techniques to build a convex hull.
          */
-        KIRKPATRICK_SEIDEL,
+        KIRKPATRICK_SEIDEL = 1,
         /**
          * @brief Time Complexity : O(n * log n)
          * @note The algorithm first sorts the points lexicographically and then constructs the upper 
          * and lower hulls separately. It's particularly efficient for point sets that lie on or
          * near a straight line.
          */
-        MONOTONE_CHAIN,
+        MONOTONE_CHAIN = 2,
         /**
          * @brief Time Complexity : O(n * h), where h is the number of points on the convex hull.
          * @note This algorithm iteratively selects the point with the lowest polar angle from the
          * current point and adds it to the convex hull.
          */
-        JARVIS_MARCH,
+        JARVIS_MARCH = 3,
         /**
          * @brief Time Complexity : O(n * log n)
          * @note This algorithm sorts the points by polar angle around the lowest point and then
          * constructs the convex hull incrementally by adding points based on their relative angles.
          */
-        GRAHAM_SCAN,
+        GRAHAM_SCAN = 4,
         /**
          * @brief Time Complexity : O(n^2)
          * @note This algorithm starts with the convex hull of the first two points and then adds
          * points one by one while maintaining the convexity of the hull.
          */
-        INCREMENTAL,
+        INCREMENTAL = 5,
         /**
          * @brief Time Complexity : O(n * log n) on average, O(n^2) worst-case
          * @note Quickhull uses a divide-and-conquer approach to recursively find the convex hull
          * by identifying extreme points and constructing the hull around them.
          */
-        QUICK_HULL,
+        QUICK_HULL = 6,
         /**
          * @brief Time Complexity : O(n * log h), where h is the number of points on the convex hull.
          * @noteChan's algorithm combines the ideas of Graham's Scan and binary search to improve
          * performance in terms of the number of comparisons made.
          */
-        CHAN,
+        CHAN = 7,
     };
     //-- Avalible Spaces to Affect Convex Hull Algorithm
     enum Spaces {
         /**
          * @brief Convex Hull in 3 Dimensional Space
          */
-        IN_SPACE,
+        IN_SPACE = 8,
         /**
          * @brief Convex Hull on 2 Dimensional Space
          */
-        IN_PLANE
+        IN_PLANE = 9
     };
     /**
      * @brief Configuration of Convex Hull

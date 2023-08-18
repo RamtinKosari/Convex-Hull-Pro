@@ -9,26 +9,35 @@
         int _alg = GRAHAM_SCAN,
         int _spc = IN_PLANE
     ) {
-        __CALCULATION = _clc;
-        __ALGORITHM = _alg;
-        __GENERATOR = _gen;
-        __SPACE = _spc;
+        //-- Check if Selected Generator Method is Correct
+        if (_gen <= -1 && _gen >= -5) {
+            __GENERATOR = _gen;
+        } else {
+            std::cout << FAILED "Generator Method is Invalid" ENDL;
+        }
+        //-- Check if Selected Calculation Speed Method is Correct
+        if (_clc <= -6 && _clc >= -9) {
+            __CALCULATION = _clc;
+        } else {
+            std::cout << FAILED "Calculation Speed Method is Invalid" ENDL;
+        }
+        //-- Check if Selected Algorithm is Correct
+        if (_alg >= 0 && _alg <=7) {        
+            __ALGORITHM = _alg;
+        } else {
+            std::cout << FAILED "Convex Hull Algorithm is Invalid" ENDL;
+        }
+        //-- Check if Selected Space is Correct
+        if (_spc >= 8 && _spc <= 9) {
+            __SPACE = _spc;
+        } else {
+            std::cout << FAILED "Mathematical Space is Invalid" ENDL;
+        }
     }
     //-- Points Constructor
     Point::Point() {
         y = GDW_HEIGHT / 2;
         x = GDW_WIDTH / 2;
         theta = 0;
-    }
-    //-- Convex Hull Constructor
-    /**
-     * @brief Method to Log in-Terminal Messages
-     * @param message Input Message to be Logged
-     * @param active Prints Log if Logging Messages is Activated in Configuration File
-     */
-    void logger(const std::string message) {
-        if (LOG_MESSAGES) {
-            std::cout << LOG << message << std::endl;
-        }
     }
 # endif // __CONVEX_HULL_HPP
