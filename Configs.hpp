@@ -25,4 +25,8 @@
      * Screen's Height to Prevent Displaying Outside of Screen
      */
     # define GDW_HEIGHT 1000
+    /**
+     * @brief Amount of Random Points that are Going to be Generated
+     */
+    # define RANDOM_POINTS_AMOUNT 1000
 # endif // __CONFIGS_HPP
