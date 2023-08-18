@@ -1,5 +1,11 @@
 # include "ConvexHull.hpp"
 
 int main() {
-    ConvexHull points;
+    Configuration cnf;
+    cnf.set(
+        CALC_SPEED_DETAILS,
+        GENERATE_RANDOM,
+        GRAHAM_SCAN,
+        IN_PLANE
+    )
 }

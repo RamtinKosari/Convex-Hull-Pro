@@ -29,4 +29,15 @@
      * @brief Amount of Random Points that are Going to be Generated
      */
     # define RANDOM_POINTS_AMOUNT 1000
+    /**
+     * @brief Enables in-Terminal Log Messages
+     */
+    # define LOG_MESSAGES true
+    //-- in-Terminal Log Definitions
+    # define WARNING "\033[38;2;255;255;0m[WARNING]\033[0m "
+    # define SUCCESS "\033[38;2;0;255;0m[SUCCESS]\033[0m "
+    # define FAILED "\033[38;2;255;0;0m[FAILED]\033[0m "
+    # define LOG "\033[38;2;150;150;150m[LOG]\033[0m "
+    # define ENDL "\n"
+    # define TAB "   "
 # endif // __CONFIGS_HPP

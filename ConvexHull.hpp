@@ -34,7 +34,12 @@
     # endif // Check Operating System
     //-- Include Libraries
     # include <vector>
-    //-- Point Generating Methodes
+    # include <iostream>
+    //-- Include Configuration
+    # ifndef __CONFIGS_HPP
+        # include "Configs.hpp"
+    # endif // __CONFIGS_HPP
+    //-- Points Generating Methodes
     enum PointGenerationMethod {
         /**
          * @brief Generate Random Points
@@ -42,8 +47,13 @@
          */
         GENERATE_RANDOM,
         /**
+         * @brief Generate Points from Input Points Vector
+         * @note T
+         */
+        GENERATE_WITH_DATA,
+        /**
          * @brief Generate Points from File
-         * @note
+         * @note Input File with Specefic Structure is Needed in Term of Using this Generator
          */
         GENERATE_FROM_FILE,
         /**
@@ -83,6 +93,106 @@
          */
         CALC_SPEED_DETAILS
     };
+    //-- Avalible Algorithms
+    enum Algorithms {
+        /**
+         * @brief Time Complexity : O(n * log n)
+         * @note The algorithm first sorts the points lexicographically and then constructs
+         * the upper and lower hulls separately. It's particularly efficient for point sets
+         * that lie on or near a straight line.
+         */
+        MONOTONE_CHAIN_ANDREW,
+        /**
+         * @brief Time Complexity : O(n * log h), where h is the number of points on the convex hull.
+         * @note This is a randomized incremental algorithm that uses divide-and-conquer
+         * techniques to build a convex hull.
+         */
+        KIRKPATRICK_SEIDEL,
+        /**
+         * @brief Time Complexity : O(n * log n)
+         * @note The algorithm first sorts the points lexicographically and then constructs the upper 
+         * and lower hulls separately. It's particularly efficient for point sets that lie on or
+         * near a straight line.
+         */
+        MONOTONE_CHAIN,
+        /**
+         * @brief Time Complexity : O(n * h), where h is the number of points on the convex hull.
+         * @note This algorithm iteratively selects the point with the lowest polar angle from the
+         * current point and adds it to the convex hull.
+         */
+        JARVIS_MARCH,
+        /**
+         * @brief Time Complexity : O(n * log n)
+         * @note This algorithm sorts the points by polar angle around the lowest point and then
+         * constructs the convex hull incrementally by adding points based on their relative angles.
+         */
+        GRAHAM_SCAN,
+        /**
+         * @brief Time Complexity : O(n^2)
+         * @note This algorithm starts with the convex hull of the first two points and then adds
+         * points one by one while maintaining the convexity of the hull.
+         */
+        INCREMENTAL,
+        /**
+         * @brief Time Complexity : O(n * log n) on average, O(n^2) worst-case
+         * @note Quickhull uses a divide-and-conquer approach to recursively find the convex hull
+         * by identifying extreme points and constructing the hull around them.
+         */
+        QUICK_HULL,
+        /**
+         * @brief Time Complexity : O(n * log h), where h is the number of points on the convex hull.
+         * @noteChan's algorithm combines the ideas of Graham's Scan and binary search to improve
+         * performance in terms of the number of comparisons made.
+         */
+        CHAN,
+    };
+    //-- Avalible Spaces to Affect Convex Hull Algorithm
+    enum Spaces {
+        /**
+         * @brief Convex Hull in 3 Dimensional Space
+         */
+        IN_SPACE,
+        /**
+         * @brief Convex Hull on 2 Dimensional Space
+         */
+        IN_PLANE
+    };
+    /**
+     * @brief Configuration of Convex Hull
+     * @note Create Object of this Structure, Assign Configuration and then Pass It as Constructor's Argument
+     */
+    class Configuration {
+        protected :
+            /**
+             * @brief Calculating Speed
+             * @note Default : CALC_SPEED_DETAILS
+             */
+            int __CALCULATION;
+            /**
+             * @brief Convex Hull's Algorithm
+             * @note Default : GRAHAM_SCAN
+             */
+            int __ALGORITHM;
+            /**
+             * @brief Points Generating Method
+             * @note Default : GENERATE_WITH_DATA
+             */
+            int __GENERATOR;
+            /**
+             * @brief Convex Hull Space
+             * @note Default : IN_PLANE
+             */
+            int __SPACE;
+        public :
+            /**
+             * @brief Constructor that Sets Convex Hull's Configuration
+             * @param _clc Calculating Speed, Default : CALC_SPEED_DETAILS
+             * @param _gen Points Generating Method, Default : GENERATE_WITH_DATA
+             * @param _alg Convex Hull's Algorithm, Default : GRAHAM_SCAN
+             * @param _spc Convex Hull Space, Default : IN_PLANE
+             */
+            bool set(int _clc, int _gen, int _alg, int _spc);
+    };
     //-- Points Class
     class Point {
         private:
@@ -93,13 +203,17 @@
             Point();
     };
     //-- Convex Hull Class Definition
-    class ConvexHull {
+    class ConvexHull : public Configuration {
         private:
             std::vector<Point> points;
         public:
-            //-- Constructor
             ConvexHull();
-            //-- Points Generator
-            bool GeneratePoints();
+            bool GeneratePoints(Configuration&);
     };
+    /**
+     * @brief Method to Log in-Terminal Messages
+     * @param message Input Message to be Logged
+     * @note Prints Log if Logging Messages is Activated in Configuration File
+     */
+    void logger(const std::string message);
 # endif // __CONVEX_HULL_HPP
