@@ -16,6 +16,7 @@
             std::cout << TAB SUCCESS "Generator Method has been Configured" ENDL;
         } else {
             std::cout << TAB FAILED "Generator Method is Invalid" ENDL;
+            return false;
         }
         //-- Check if Selected Calculation Speed Method is Correct
         if (_clc <= -6 && _clc >= -9) {
@@ -56,9 +57,58 @@
         theta = 0;
         z = 0;
     }
+    //-- Set Data of Points
+    void Point::setData(int& _x, int& _y, int& _z, double& _theta) {
+        theta = _theta;
+        x = _x;
+        y = _y;
+        z = _z;
+    }
     //-- Convex Hull Constructor
     ConvexHull::ConvexHull(Configuration __input_config) {
         cnf = __input_config;
         isAutomatic = false;
+        points.resize(0);
     }
+    //-- Automatic Processing Convex Hull Method
+    bool ConvexHull::automatic() {
+        //-- Load Points Data
+        loadPointsData();
+        return true;
+    }
+    //-- Method to Load Points Data
+    bool ConvexHull::loadPointsData() {
+        if (cnf.__GENERATOR == GENERATE_RANDOM) {
+            //-- Seed Random Generator
+            std::random_device __rnd;
+            //-- Mersenne Twister PRNG
+            std::mt19937 __gen(__rnd());
+            // Create a Normal Distribution with the Given Mean and Standard Deviation
+            std::normal_distribution<double> distribution(
+                RANDOM_POINTS_MEAN,
+                RANDOM_POINTS_STANDARD_DEVIATION
+            );
+            //-- Initialize Points Amount
+            points.resize(RANDOM_POINTS_AMOUNT);
+            cv::Mat tmp(GDW_HEIGHT, GDW_WIDTH, CV_8UC3, cv::Scalar(10, 10, 10));
+            for (int i = 0; i < RANDOM_POINTS_AMOUNT; i++) {
+                cv::circle(tmp, cv::Point(distribution(__gen), distribution(__gen)), 1, cv::Scalar(255, 255, 0), -1, 8, 0);
+                cv::imshow("t", tmp);
+                cv::waitKey(1);
+                // std::cout << "Random Number " << i + 1 << ": " << random_value << std::endl;
+            }
+            // cv::imshow("t", tmp);
+            cv::waitKey(0);
+            cv::destroyAllWindows();
+        } else if (cnf.__GENERATOR == GENERATE_WITH_DATA) {
+
+        } else if (cnf.__GENERATOR == GENERATE_FROM_FILE) {
+
+        } else if (cnf.__GENERATOR == GENERATE_FROM_IMAGE) {
+
+        } else if (cnf.__GENERATOR == GENERATE_FROM_CAMERA_SOURCE) {
+
+        }
+    }
+    //-- Method to Generate Points from Data
 # endif // __CONVEX_HULL_HPP

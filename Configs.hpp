@@ -29,7 +29,16 @@
     /**
      * @brief Amount of Random Points that are Going to be Generated
      */
-    # define RANDOM_POINTS_AMOUNT 1000
+    # define RANDOM_POINTS_AMOUNT 2000
+    /**
+     * @brief Mean for Normal Distribution
+     * @note It Should be Half of Display Window Size
+     */
+    # define RANDOM_POINTS_MEAN 500
+    /**
+     * @brief Deviation for Normal Distribution
+     */
+    # define RANDOM_POINTS_STANDARD_DEVIATION 120
     /**
      * @brief Enables in-Terminal Log Messages
      */

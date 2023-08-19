@@ -36,9 +36,13 @@
     # ifndef __CONFIGS_HPP
         # include "Configs.hpp"
     # endif // __CONFIGS_HPP
-    //-- Include Libraries
+    //-- Include Library to Store Points Data
     # include <vector>
+    //-- Include Library for Input and Output Streaming
     # include <iostream>
+    //-- Include Library to Generate Points Randomly
+    # include <random>
+    //-- Check If Graphical View is Enabled in Configuration File
     # if GRAPHICAL_VIEW
         # include <opencv4/opencv2/highgui.hpp>
         # include <opencv4/opencv2/imgproc.hpp>
@@ -46,7 +50,7 @@
         # pragma message \
         "                                                                       \
          GRAPHICAL_VIEW is Turned Off ! These Options are No Longer Usable :    \
-         CALC_SPEED_FAST    CALC_SPEED_NORMAL   CALC_SPEED_DETAILS              \ 
+         CALC_SPEED_FAST    CALC_SPEED_NORMAL   CALC_SPEED_DETAILS              \
          GENERATE_FROM_CAMERA_SOURCE    GENERATE_FROM_IMAGE                     \
          You Can Turn It On in Configuration File                               \
         "
@@ -217,11 +221,27 @@
             int y;
             int z;
         public:
+            /**
+             * @brief Constructor
+             */
             Point();
+            /**
+             * @brief Method to Set Points Data
+             * @param x X-Axis Value
+             * @param y Y-Axis Value
+             * @param z Z-Axis Value
+             * @param theta Theta (Calculated According to Algorithm)
+             */
+            void setData(int&, int&, int&, double&);
     };
     //-- Convex Hull Class Definition
     class ConvexHull : public Configuration {
         private:
+            /**
+             * @brief Methodes Calling is Automatic or Not 
+             * @param true Automatic Processing
+             * @param false Client's Function Calling Processing
+             */
             bool isAutomatic;
             /**
              * @brief Points Data
@@ -239,10 +259,23 @@
             /**
              * @brief Method to Process Convex Hull Methodes in Order
              * @note When this Methodis Called There is No Need to Call Other Methodes
-             * @return true Automatic Processing
-             * @return false Client's Function Calling Processing
+             * @note if Every Methodes Called Automatically and Successfully this Method
+             * Returns True, Otherwise False
+             * @return true false
              */
             bool automatic();
+            /**
+             * @brief Load Points Data According to Configuration
+             * @note if Points Data Loads Successfully It will Return True, Otherwise False
+             * @return true 
+             * @return false 
+             */
+            bool loadPointsData();
+            /**
+             * @brief Method to Generate Points According to Data
+             * @return true 
+             * @return false 
+             */
             bool GeneratePoints();
     };
 # endif // __CONVEX_HULL_HPP

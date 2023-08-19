@@ -9,12 +9,14 @@ int main() {
         GENERATE_RANDOM,
         GRAHAM_SCAN,
         IN_PLANE
-    )) {
-        std::cout << TAB SUCCESS "Valid Configuration Initialized" ENDL;
+    ) == true) {
+        std::cout << SUCCESS "Valid Configuration Initialized" ENDL;
     } else {
-        std::cout << TAB FAILED "Can Not Initialize Configuration" ENDL;
+        std::cout << FAILED "Can Not Initialize Configuration" ENDL;
         exit(EXIT_FAILURE);
     }
-    //-- Affect Convex Hull with Initialized Configuration
-    // ConvexHull convexhull
+    //-- Create Convex Hull Process with Specefic Configuration
+    ConvexHull ch(cnf);
+    //-- Run Convex Hull's Process Automatically
+    ch.automatic();
 }
