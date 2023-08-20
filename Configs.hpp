@@ -27,9 +27,13 @@
      */
     # define GDW_HEIGHT 1000
     /**
+     * @brief Name of Graphical Display Window
+     */
+    # define GDW_NAME "Convex Hull"
+    /**
      * @brief Amount of Random Points that are Going to be Generated
      */
-    # define RANDOM_POINTS_AMOUNT 2000
+    # define RANDOM_POINTS_AMOUNT 6000
     /**
      * @brief Mean for Normal Distribution
      * @note It Should be Half of Display Window Size

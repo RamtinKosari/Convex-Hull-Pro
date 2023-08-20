@@ -44,6 +44,7 @@
     # include <random>
     //-- Check If Graphical View is Enabled in Configuration File
     # if GRAPHICAL_VIEW
+        # include <opencv4/opencv2/viz/viz3d.hpp>
         # include <opencv4/opencv2/highgui.hpp>
         # include <opencv4/opencv2/imgproc.hpp>
     # else
@@ -215,7 +216,7 @@
     };
     //-- Points Class
     class Point {
-        private:
+        protected:
             double theta;
             int x;
             int y;
@@ -232,10 +233,38 @@
              * @param z Z-Axis Value
              * @param theta Theta (Calculated According to Algorithm)
              */
-            void setData(int&, int&, int&, double&);
+            void setData(int, int, int, double);
+            /**
+             * @brief Method to Get X-Axis Value
+             * @return int
+             */
+            int getX() {
+                return x;
+            }
+            /**
+             * @brief Method to Get Y-Axis Value
+             * @return int
+             */
+            int getY() {
+                return y;
+            }
+            /**
+             * @brief Method to Get Z-Axis Value
+             * @return int
+             */
+            int getZ() {
+                return z;
+            }
+            /**
+             * @brief Method to Get Theta Value
+             * @return double
+             */
+            int getTheta() {
+                return theta;
+            }
     };
     //-- Convex Hull Class Definition
-    class ConvexHull : public Configuration {
+    class ConvexHull : public Configuration, public Point {
         private:
             /**
              * @brief Methodes Calling is Automatic or Not 
@@ -251,6 +280,14 @@
              * @brief ConvexHull's Configuration
              */
             Configuration cnf;
+            /**
+             * @brief 2D Space Matrix
+             */
+            cv::Mat _2D_matrix;
+            /**
+             * @brief 3D Space Matrix
+             */
+            cv::viz::Viz3d _3D_matrix;
         public:
             /**
              * @brief Constructor to Initialize Convex Hull Process with Specefic Configuration

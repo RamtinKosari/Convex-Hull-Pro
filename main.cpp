@@ -8,7 +8,7 @@ int main() {
         CALC_SPEED_DETAILS,
         GENERATE_RANDOM,
         GRAHAM_SCAN,
-        IN_PLANE
+        IN_SPACE
     ) == true) {
         std::cout << SUCCESS "Valid Configuration Initialized" ENDL;
     } else {
